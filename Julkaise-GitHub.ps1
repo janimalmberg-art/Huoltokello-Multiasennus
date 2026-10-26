@@ -369,8 +369,8 @@ if ($asset) {
     Write-Host "  Release     : $($rel.html_url)"
 }
 Write-Host ''
-Write-Host 'Lopputyot: muokkausta myohemmille ajoille git add + git commit + git push'
-Write-Host "Esimerkki: git add --all; git commit -m `"'kuvaus`"'; git push origin $Haara"
+Write-Host 'Myohemmat muutokset: tavallisilla git-komennoilla:' 
+Write-Host ('    git add --all ; git commit -m "kuvaus" ; git push origin ' + $Haara)
 Write-Host ''
 if (($Host.Name -eq 'ConsoleHost') -and (-not [System.Console]::IsInputRedirected)) {
     $null = Read-Host 'Paina Enter sulkeaksesi'
