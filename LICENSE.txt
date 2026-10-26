@@ -1,0 +1,20 @@
+HUOLTOKELLO — TEKIJÄNOIKEUS- JA KÄYTTÖOIKEUSILMOITUS
+====================================================
+
+Copyright (c) 2026 Huoltokello. Kaikki oikeudet pidätetään.
+
+Tämä repositorio sisältää Huoltokello-ohjelman asennuspaketin ja
+ylläpitotyökalut. Ohjelmisto on kaupallinen; sen jakelu ja käyttö
+rajoittuvat valmistajan myöntämään käyttöoikeuteen (lisenssiehtoihin).
+
+- Ohjelman suorittaminen, asennus ja ylläpito paketin työkaluilla
+  on sallittua käyttöoikeuden haltijoille.
+- Lähekoodin jakelu, muokkaus, käänteinen suunnittelu,
+  asennuspaketin uudelleenjakelu tai sen aineksien
+  hyödyntäminen muussa sovelluksessa ei ole sallittua ilman
+  kirjallista lupaa.
+- Tunnusten, palautussähköpostien ja varmuuskopioiden hallinta:
+  vastuu käyttäjän/käyttöyksikön omalla; säilytä tunnukset ja
+  varmuuskopiot luottavaisesti.
+
+Yhteydenotot: dev@huolto.fi (Huoltokello)

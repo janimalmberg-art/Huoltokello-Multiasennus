@@ -1,0 +1,116 @@
+================================================================
+HUOLTOKELLO - MULTIASENNUKSEN PAKETTI (Lueminut)
+================================================================
+
+Tama paketti asentaa Huoltokello-ohjelman (Kiinteistonhuollon
+taktinen tyonhallinta) kolmella tavalla. Avaa asennus siirtamalla
+tama KOKO kansio sille koneelle, jolta asennus ajetaan, ja
+kaynnistamalla:
+
+    Asenna.cmd            <- graafinen asennusvelho (suositus)
+
+Velho kysyy asennustavan ja kaikki tarvittavat tiedot, nayttaa
+jokaisen vaiheen edistymisen ja pyytaa LUVALLE-sivulla luvan
+siihen, etta skripti saa toimia kayttajan puolesta, ennen kuin
+yhtaan muutosta tehdaan.
+
+
+ASENNUSTAVAT
+----------------------------------------------------------------
+
+1) PAIKALLINEN
+   Ohjelma asennetaan omalle koneelle (%LOCALAPPDATA%\Huoltokello
+   tai valitsemaasi kansioon, oletusportti 8088).
+   Luo pikakuvakkeet, ylla pitaja tilin (Johto) ja tarvittaessa:
+   palomuurisallinnan (puhelinkaytto lahitverkossa), automaattisen
+   kaynnistyksen ja rekisterimerkinnan.
+
+2) MICROSOFT AZURE
+   Ohjelma asennetaan Microsoftin pilveen KAYTAJAN omalle
+   Microsoft/Azure-tilille (kirjautuminen laitelaitekoodilla,
+   www.microsoft.com/devicelogin). Velho luo Azure-tilillesi:
+   resurssiryhman, App Service -palvelupaketin (B1/F1/P1v2),
+   sovelluksen, asetukset ja vie ohjelman ja kaynnistaa sen.
+   HUOM: tili tarvitsee oikeuden luoda resursseja tilaukseen
+   (esim. omistaja tai Osallistuja). Azure-kaytto maksaa;
+   B1-testitaso on halvin. Poisto onnistuu poistamalla
+   resurssiryhma Azure-portaalista (velho tulostaa nimen).
+
+3) YRITYKSEN OMA WINDOWS-PALVELIN
+   Ohjelma siirretaan ja kaynnistetaan yrityksen omalle
+   Windows-serverille, jolle tiedat osoitteen ja yllapitotunnukset
+   (yhteydenotto WinRM:lla, tiedostojen siirto, kaytto-oikeudet,
+   palomuuri, tehtava-ajastuksena toimiva palvelu). Palvelimen
+   vanhat Huoltokello-tiedostot ylikirjoitetaan, tietokanta
+   seka asetukset sailytetaan pikakuvaketta ei pakko).
+
+
+VAATIMUKSET
+----------------------------------------------------------------
+- Windows 10/11, PowerShell 5.1 (sisaltyy Windowsiin)
+- N. 600 Mt vapaata levytilaa (asennus + paketin purkaminen)
+- Paikallinen: ei muita vaatimuksia (NET-latauksia ei tehda)
+- Azure: Microsoft/Azure-tili + Azure CLI (velho voi asentaa
+  sen puolestasi UAC-kyselylla) + tilauksen kirjoitusoikeus
+- Palvelin: WinRM kaytossa palvelimella, yllapitotunnukset,
+  TCP-portti vapaana (oletus 8080). Jos palvelin EI ole
+  samassa toimialueessa, velho pyytaa lupaa kayttaa
+  TrustedHosts-korjausta omalla koneellasi.
+
+
+HILJAINEN ASENNUSTESTIIN / SKRIPTATTU KAYTTOON
+----------------------------------------------------------------
+Hiljainen asennus vaatii -HyvaksyLuvat: annat samalla luvan,
+jonka LUVAT-sivu kysyy GUI:ssa.
+
+Paikallinen:
+  powershell -NoProfile -ExecutionPolicy Bypass -File
+    Asenna-Huoltokello-Multa.ps1 -Silent -Mode paikallinen
+    -InstallDir "C:\Huoltokello" -Port 8088
+    -AdminName "Maija Meikalainen" -AdminEmail "maija@firma.fi"
+    -AdminPassword "Salasana1" -HyvaksyLuvat
+  Valinnaiset: -AutoStart -PhoneAccess -NoShortcuts -NoBrowser
+
+Azure:
+  ... -Silent -Mode azure -AzName "firma-huoltokello"
+      -AzRg "huoltokello-rg" -AzRegion "finlandiacentral"
+      -AzSku "B1" (valinnaiset: -AzSubscription <tunnus>)
+      (Admin-liput ja -HyvaksyLuvat)
+
+Palvelin:
+  ... -Silent -Mode serveri -ServerHost "PALVELIN"
+      -ServerUser "PALVELIN\Admin" -ServerPass "..."
+      (valinnaiset: -ServerPath "C:\Huoltokello"
+       -ServerPort 8080 -ServerNotDomain)
+      (Admin-liput ja -HyvaksyLuvat)
+
+Tarkista paketin kunto ennen jakelua:
+  powershell -File Asenna-Huoltokello-Multa.ps1 -SelfTest
+
+
+PAKETIN SISALTO
+----------------------------------------------------------------
+Asenna.cmd                      Kaynnistin
+Asenna-Huoltokello-Multa.ps1    Asennusvelho (GUI + hiljainen)
+Osa-Azure.ps1                   Azure-asennuksen osa
+Osa-Palvelin.ps1                Palvelinasennuksen osa
+app.zip                         Huoltokello-ohjelma (50 Mt)
+assets\                         Kuvakkeet
+Ohjeet\                         Kayttoonotto-Opas.html, Asennusopas
+Tyokalut\                       Yllapitotyokalut (paivitys, varmuuskopio,
+                                poisto, kayttajat)
+VERSIO.txt                      Ohjelman versiotiedot
+
+
+TUKI JA VIANETSINTA
+----------------------------------------------------------------
+- Velho nayttaa jokaisen vaiheen tuloksen; virhessa viim. vaihe
+  kertoo syyn. Katso myos: %LOCALAPPDATA%\Huoltokello\AppData\logit
+  (paikallinen) tai palvelimen ...\AppData -kansio (palvelin).
+- Portti varattu? Valitse toinen (paikallinen: -Port; muuten
+  velhon kohdekentta).
+- Azure-kirjautuminen ei aukea? Aja velho uudelleen ja kirjaudu
+  www.microsoft.com/devicelogin -osoitteessa uudella koodilla.
+- Lisaa: Ohjeet\Kayttoonotto-Opas.html ja Ohjeet\Asennusopas.
+
+================================================================

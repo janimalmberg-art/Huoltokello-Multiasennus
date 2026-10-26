@@ -1,0 +1,21 @@
+# Versioloki (poiminta)
+
+Tämä on pakkausversion historia yleisellä tasolla. **Täydellinen versioloki**: [VERSIO.txt](../VERSIO.txt) repositoriossa (Huoltokello-ohjelman ja velhon versiotiedot).
+
+| Versio | Pvm | Uutta |
+|---|---|---|
+| **v2.7.3** | 30.9.2026 | SMTP-korjaus ("530 5.7.0 Authentication Required"): OUTLOOK/M365/Gmail eivät tarjoa AUTH-loikkaa ennen STARTTLS-yhteyttä — lähetys suojataan nyt automaattisesti STARTTLS-yhteydessä; tallennettu konfiguraatio korjautuu ja sivu ilmoittaa siitä; portti 465 (implisiittinen SSL) ei ole tuettu → selkeä ohje porttiin 587 |
+| v2.7.2 | 30.9.2026 | SMTP-tunnistautumisen vianhaku: salasanan tila Asetukset-sivulla (tallennusaika + pituus — tyhjä kenttä tallennuksessa = aiempi salasana); salasanasta poistetaan välilyönnit (Gmail-sovellussalasanat); palvelimen saavutettavuustesti ENNEN lähetystä (TCP + EHLO); lähettäjä-retry (5.7.60) |
+| v2.7.1 | 30.9.2026 | SMTP-testilähetyksen virheien luokittelu sivulla (tunnistautuminen / lähettäjäoikeus / TLS / rajoitus / verkko) + ohjeet; Outlook.com-korjaudet (Lähettäjä = Käyttäjätunnus, trimmoinnit) |
+| v2.7.0 | 30.9.2026 | palautussähköpostin **vahvistuslinkki** (24 h, voimaantulon hyväksyminen); alkusalasana lähtee vain vahvistettuun osoitteeseen; tokenit vain SHA-256-tiivisteenä; idempotentti skeemapäivitys (RecoveryEmailVerified/-At/-TokenHash/-TokenExpires) |
+| v2.6.0 | 30.9.2026 | Sähköpostilähetysten **omat valikot** (näkyy vain Johdolle): mitkä osoitteet SALLITAAN salasanojen lähetettäväksi; SMTP-asetukset automatisoitu valmiiksi lähettäjän osoitteesta; "Uusi salasana" -toiminto tarkistukset ENNEN muutosta |
+| v2.5.0 | 29.9.2026 | koneellisesti luotu vahva alkusalasana + sähköpostilähetys + pakotettu vaihto heti kirjautumisen jälkeen; SMTP-esiasetukset valmiit yleisimmille suomalaisille ja kansainvälisille palveluille + testilähetys; palautussähköpostin tallennus Omat tiedot -sivulla; kirjautumislukitus (5 yritystä → 15 min) |
+| v2.4.2 | 27.9.2026 | työpöytäkuvakkeet korjattu: uudet monikokoiset kuvakkeet (16–256 px) piirretään `Luo-Kuvakkeet.ps1`:llä; uusi `Korjaa-Kuvakkeet.ps1` (korjaa ilman uudelleenasennusta) |
+| v2.4.1 | 26.9.2026 | **tietoturvakovitus**: HTTPS+HSTS pakotus Alussa Azure App Servicessa; VAPID-yksityisavain pois julkaisupaketista (App Settings / appsettings.Production.json + oma avainpari per asennus); demotunnukset pois (SeedDemoData=false); turvaotsikot (CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy); HTTP/2 Alussa |
+| v2.4.0 | 26.9.2026 | laskutuksen vienti kirjanpitojärjestelmään (REST): **Procountor, Netvisor, Fennoa** — vientiloki tiloineen ja uusinta epäonnistuneille; asennuspaketti rakennettu uudelleen (v2.0.1-tason paketti korvattu — QR-skannaus, push, offline ja vienti mukana) |
+| v2.3.0 | 25.9.2026 | Web Push -ilmoitukset (VAPID); reittilinkit Google Maps: tehtävälista, kuittauslomake, "Reitti kohteille" -painike; asiakkaan vastaanoton allekirjoitus kuittauslomakkeella |
+| v2.2.0 | 25.9.2026 | **offline-kirjaus**: kuittauslomake toimii ilman verkkoa, lähtee automaattisesti verkko palatessa; PWA valmuisti + service worker (/health suoraan verkosta); QR-tarrojen massatulostus Kohteet-sivulta |
+| v2.1.0 | 25.9.2026 | QR-skannaus puhelimella (jsQR); istunto 10 h → 30 päivää (liukuvanhaennus); mobiilinäkymän viimeistely (isommat painikkeet, iOS-zoom korjattu) |
+| v2.0.1 | 25.9.2026 | korjaus: Hallinta > Tehtävätyypit -sivun kaatuminen (rikkinäinen List<dynamic>-muunnos) — tehtävätyyppien luonti taas toimii; velhon "Poista asennus" -painike korjattu osiitamaan oikea asennuskansio |
+| v2.0.0 | 25.9.2026 | **lähiverkkokäyttö**: muut koneet + **puhelimet** samaa dataa reaaliajassa (SignalR, kuuntelu 0.0.0.0 + palomuurisääntö); uusi Asetukset-valikko (puhelin/lähiverkon hallinta); graafinen poisto; aiemman asennuksen havaitseminen; päivitysvalikko sovelluksessa; prioriteettivärit alasvedoissa |
+| v1.x | 2024–2025 | vuosikello, raahaus, reaaliaikapäivitykset, tumma tila, PWA, kuittausliitteet, uudistusniput, laskutus, raportit, QR-koodit, paikallinen asennusvelho (tyhjä asennus) |

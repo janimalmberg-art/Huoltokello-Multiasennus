@@ -1,0 +1,16 @@
+# Kokonaisasennuspaketti jaetaan GitHub Releases -liitteenä
+# (velho tarvitsee repositoriossa olevan app.zip-tiedoston — se säilyy mukana)
+/Huoltokello-Multiasennus*.zip
+
+# Ajojen lokit ja tilapäistiedostot
+_julkaisu*.log
+*.log
+Thumbs.db
+desktop.ini
+~$*
+
+# Kehitysympäristöt ja varmuuskopiot
+.vscode/
+.idea/
+.gitattributes.bak
+*.user

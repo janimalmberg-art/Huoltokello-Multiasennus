@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Huoltokello — Käyttöönotto-opas</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; max-width: 900px; margin: 24px auto; padding: 0 20px; line-height: 1.55; background: #fbfcfe; }
+  h1 { color: #1e3a8a; font-size: 26px; border-bottom: 3px solid #1e3a8a; padding-bottom: 8px; }
+  h2 { color: #1d4ed8; font-size: 20px; margin-top: 34px; border-bottom: 1px solid #dbeafe; padding-bottom: 4px; }
+  h3 { font-size: 16px; color: #334155; }
+  .laatikko { background: #eef2ff; border-left: 4px solid #1d4ed8; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .varoitus { background: #fff7ed; border-left: 4px solid #ea580c; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .vaihe { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 16px; margin: 10px 0; }
+  code, .cmd { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 13px; }
+  .cmd { display: block; padding: 8px 12px; margin: 8px 0; white-space: pre-wrap; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: left; font-size: 14px; }
+  th { background: #eff6ff; }
+  .sisallys a { color: #1d4ed8; text-decoration: none; }
+  .sisallys li { margin: 3px 0; }
+  .merkki { color: #15803d; font-weight: bold; }
+  small { color: #6b7280; }
+</style>
+</head>
+<body>
+
+<h1>🕰️ Huoltokello — Vaiheittainen käyttöönotto</h1>
+<p><small>Versio 24.9.2026 · Paikallinen asennus (tyhjä aloitus)</small></p>
+
+<div class="laatikko">
+<b>Tämä opas vie sinut tyhjästä käyttövalmiiseen järjestelmään noin 30–60 minuutissa.</b><br>
+Ohjelma asennettiin tyhjänä: tietokannassa ei ole demoasioakkaita, tehtäviä tai käyttäjiä —
+kaiken lisäät itse tämän oppaan vaiheissa 1–8. Jokainen vaihe on itsenäinen, ja
+järjestelmä toimii jo ensimmäisen vaiheen jälkeen.
+</div>
+
+<h2>Ensimmäinen kirjautuminen</h2>
+<ol>
+  <li>Kaksoisnapsauta työpöydän <b>Huoltokello</b>-pikakuvaketta (tai avaa selaimessa osoite <code>http://127.0.0.1:PORTTI</code> — PORTTI näkyy asennuksen yhteenvedossa, oletus 8088).</li>
+  <li>Kirjaudu asennusvelhossa luomallasi <b>ylläpitäjätilillä</b> (sähköposti + salasana).</li>
+  <li>Näet <b>Työnäytön</b> (dashboard): tilannekuvan tehtävistä, asiakkaista ja laskutuksesta. Kaikki luvut ovat nyt nollia — täsmälleen niin kuin pitääkin.</li>
+</ol>
+
+<div class="varoitus">
+<b>Unohtuiko salasana?</b> Aja <code>Tyokalut\Luo-YllapitajaTili.ps1</code> ja luo <i>uusi</i> johtotili
+toisella sähköpostiosoitteella (vanhaa salasanaa ei voi palauttaa tiedostosta turvallisuussyistä).
+Kirjaudu uudella tilillä ja vaihda/vaihda vanhan tilin salasana sovelluksessa: Hallinta → Käyttäjät → Muokkaa.
+</div>
+
+<h2>Vaihe 1 — Tehtävätyypit (Hallinta → Tehtävätyypit)</h2>
+<p>Tehtävätyypit ovat vuosikellon värikoodattuja työtyyppejä. <b>Lisää ensin nämä</b>, koska tehtävää ei voi luoda ilman tyyppiä.</p>
+<div class="vaihe"><span class="merkki">1.</span> Ylävalikosta <b>Hallinta → Tehtävätyypit</b> → <b>+ Lisää tehtävätyyppi</b></div>
+<div class="vaihe"><span class="merkki">2.</span> Täytä: <b>Nimi</b> (esim. Talvikunnossapito), <b>Väri</b> (näkyy kalenterissa), <b>Kuvaus</b> ja <b>Kuittauksen pakolliset kentät</b>.</div>
+<div class="laatikko">
+<b>Vinkki — Kuittauksen pakolliset kentät:</b> jokaiseen tähän tyyppiin tehtyyn kuittaukseen kysytään nämä kysymykset
+(yksi rivi = yksi kysymys). Esimerkiksi talvityypeille: <code>Auraus/työn laajuus</code>, <code>Hiekoitus suoritettu</code>, <code>Käytetty aika (h)</code>, <code>Havainnot ja poikkeamat</code>.
+Kenttänimissä sanat <i>aika</i>, <i>havainnot</i> tai <i>laajuus</i> auttavat työntekijää täyttämään oikein.
+</div>
+<p><b>Esimerkkisetti aloittavalle yritykselle:</b> Talvikunnossapito (sininen #2563eb), Viheralueet (vihreä #16a34a),
+Yleishuolto (oranssi #f59e0b), Siivous (violetti #8b5cf6). Muokkaa omaksesi — tyyppejä voi lisätä ja muokata milloin tahansa.</p>
+
+<h2>Vaihe 2 — Työntekijäryhmät (Hallinta → Ryhmät)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Hallinta → Ryhmät</b> → anna ryhmän <b>Nimi</b> ja <b>Kuvaus</b> → Tallenna.</div>
+<p>Ryhmät (esim. Talviryhmä, Kiinteistöryhmä) ohjaavat tehtävien jakoa: tehtävän voi osoittaa kokonaiselle ryhmälle tai yksittäiselle työntekijälle.
+Ryhmän voi luoda myös myöhemmin käyttäjien jälkeen.</p>
+
+<h2>Vaihe 3 — Käyttäjät (Hallinta → Käyttäjät)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Hallinta → Käyttäjät</b> → <b>+ Uusi käyttäjä</b>.</div>
+<div class="vaihe"><span class="merkki">2.</span> Täytä: Nimi, Sähköposti (tunnus), Tehtävänimike, <b>Rooli</b>, Ryhmä (työntekijöille) ja alkusalasana → Tallenna.</div>
+<p>Anna tunnukset työntekijöille henkilökohtaisesti. He vaihtavat salasanan... <small>(salasanan vaihto: kirjautumisen jälkeen Hallinta → Käyttäjät → Muokkaa → uusi salasana)</small></p>
+<table>
+  <tr><th>Rooli</th><th>Oikeudet</th><th>Sopii</th></tr>
+  <tr><td><b>Johto</b></td><td>Kaikki: käyttäjät, ryhmät, tehtävätyypit, audit-loki, kaikki raportit</td><td>Omistaja, vastaava mestari</td></tr>
+  <tr><td><b>Työnjohto</b></td><td>Tehtävien hallinta, asiakkaat, kohteet, sopimukset, laskutus, puutteiden hyväksyntä</td><td>Aluepäällikkö, työnsuunnittelija</td></tr>
+  <tr><td><b>Työntekijä</b></td><td>Omat tehtävät, kuittaukset (+ valokuvat, tunnit, tarvikkeet), viestit</td><td>Kuljettajat, huoltomiehet</td></tr>
+</table>
+<div class="laatikko">
+<b>Salasanavaatimukset:</b> vähintään 8 merkkiä, suuraakkonen ja numero (esim. <code>Tyontekija2026!</code>).<br>
+<b>Massaluonti:</b> <code>Tyokalut\Luo-Kayttaja.ps1</code> luo käyttäjiä komentoriviltä ohjatusti (kirjautuu Johto-tilillä).
+</div>
+
+<h2>Vaihe 4 — Asiakkaat (Asiakkaat)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Asiakkaat → + Uusi asiakas</b>: Nimi, yhteyshenkilö, sähköposti, puhelin, osoite ja muistiinpanot (esim. "auraus viikonloppuisin ennen klo 8").</div>
+<p>Asiakkaan alle lisätään myöhemmin kohteet (vaihe 6) ja sopimukset (vaihe 5). Asiakasnäkymässä näet kohteet, sopimukset ja laskut koottuna.</p>
+
+<h2>Vaihe 5 — Sopimukset (Sopimukset)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Sopimukset → + Uusi sopimus</b>: valitse asiakas, voimassaoloajat ja hinnoittelu.</div>
+<p><b>Hinnoittelu sopimuksessa:</b></p>
+<table>
+  <tr><th>Kenttä</th><th>Käyttö</th></tr>
+  <tr><td>Hintatyyppi</td><td>Kiinteä (kk-hinta) tai tuntihinta</td></tr>
+  <tr><td>Tuntihinta / Kiinteä hinta</td><td>Laskennan perusteet</td></tr>
+  <tr><td>Kate-%</td><td>Lisätään alittomiin hintoihin läpilaskutusta lukuun ottamatta</td></tr>
+  <tr><td>ALV-%</td><td>Oletus 25,5 % (muokkaa tarvittaessa)</td></tr>
+  <tr><td>Laskutusväli</td><td>Esim. kuukausittain / 3 kk välein</td></tr>
+  <tr><td>Maksuaika</td><td>Esim. 14 pv netto</td></tr>
+  <tr><td>Sopimusnumero / yhteyshenkilö</td><td>Omia tarpeita varten</td></tr>
+</table>
+<div class="vaihe"><span class="merkki">2.</span> <b>Hintaosat</b>: lisää sopimuksen kiinteät osat (esim. "Yleishuoltotyöt, kk-hinta", "Lumityöt, kk-hinta"). Merkitse <b>läpilaskutettava</b> ne osat, jotka laskutetaan asiakkaalta ilman katetta (esim. hiekka, polttoaine).</div>
+<div class="laatikko">Sopimuksen voi tehdä myös ilman hintoja ("vapaamuotoinen") — laskutus toimii silti tehtävistä kirjattujen tuntien ja tarvikkeiden perusteella.</div>
+
+<h2>Vaihe 6 — Kohteet (Kohteet)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Kohteet → + Uusi kohde</b>: asiakas, nimi, osoite, kuvaus ja alue m² (hyödyllinen aurauksessa ja hinnoittelussa).</div>
+<div class="vaihe"><span class="merkki">2.</span> Avaa kohde → <b>QR-koodi</b>: tulosta QR ja kiinnitä kohteeseen. Puhelimella lukemalla avautuu suoraan kohteen tehtävänkuittaus (vaatii puhelinkäytön, luku 9).</div>
+<p>Kohteeseen voi liittää myös asiakirjoja ja kuvia (esim. aluekartta, avainluettelo).</p>
+
+<h2>Vaihe 7 — Vuosikellon tehtävät (Kalenteri / Vuosikello)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Kalenteri</b>-näkymä → valitse kuukausi → <b>+ Uusi tehtävä</b>: tyyppi, kohde, aikaväli, prioriteetti, vastuuhenkilö/ryhmä, arvio tunneista ja <b>työohjeet</b> (nähdyt työntekijän puhelimessa).</div>
+<div class="vaihe"><span class="merkki">2.</span> Raahaa tehtävää kalenterissa päivältä toiselle suunnitelman muuttuessa.</div>
+<div class="laatikko">
+<b>Toistuvat tehtävät — automaattinen vuosikello:</b> <b>Tehtävät → Toistuvat tehtävät</b> → luo pohja
+(esim. "Nurmen niitto", väli 14 pv, valmistetaan 3 pv ennen). Taustapalvelu luo uudet tehtävät
+automaattisesti 90 päivän horisonttiin — kirjaamatta jääneet erottuvat punaisella.
+<b>HUOM:</b> taustapalvelu toimii vain kun kone on päällä; kone sammuttaa yöksi → tehtävät luodaan seuraavan käynnistyksen yhteydessä.
+</div>
+
+<h2>Vaihe 8 — Laskutus (Laskutus)</h2>
+<div class="vaihe"><span class="merkki">1.</span> <b>Laskutus → + Uusi lasku</b>: valitse asiakas ja (suositeltu) sopimus — kate-%, ALV ja hintaosat täyttyvät automaattisesti.</div>
+<div class="vaihe"><span class="merkki">2.</span> Lisää rivit: kiinteä osa (kk), lisätyöt (tunnit) ja materiaalit. Läpilaskutetut rivit merkitään <b>läpilasku</b>-valinnalla (ei katetta).</div>
+<div class="vaihe"><span class="merkki">3.</span> Merkitse lasku <b>lähetetyksi</b> ja myöhemmin <b>maksetuksi</b> (päivämäärä tallentuu). Erääntyneet näkyvät työnäytössä.</div>
+<p>Kuittauksiin kirjatut <b>työajat</b> ja <b>tarvikkeet</b> näkyvät raporteissa ja auttavat läpilaskutuksessa.</p>
+
+<h2>Vaihe 9 — Puhelinkäyttö (PWA) ja tumma tila</h2>
+<div class="vaihe"><span class="merkki">1.</span> Aja työpöydältä (tai asennuskansiossa) <code>Tyokalut\PuhelinKaytto.ps1</code>. Se pyytää ylläpito-oikeuksia (palomuurisääntö), käynnistää sovelluksen uudelleen ja <b>näyttää puhelinten osoitteet</b> (http://KONEEN-IP:PORTTI).</div>
+<div class="vaihe"><span class="merkki">2.</span> Puhelimella (sama WiFi): avaa osoite → selaimen valikosta <b>"Lisää sovellus aloitusnäytölle"</b> (Android/Chrome) tai <b>Jaa → Lisää Koti-valikkoon</b> (iPhone/Safari). Sovellus asentuu sovelluskuvakkeeksi (PWA).</div>
+<div class="vaihe"><span class="merkki">3.</span> <b>Tumma tila:</b> yläpalkin kuun-ikoni — asetus muistetaan laitekohtaisesti.</div>
+<p class="varoitus">Työntekijät kirjaavat kuittaukset puhelimella: <b>Valmis / Puute</b>, vapaat kentät, <b>valokuvat</b>, <b>työtunnit</b> ja <b>tarvikkeet</b>. Puute luo automaattisesti korjaustehtävän työnjohdon hyväksyttäväksi.</p>
+
+<h2>Vaihe 10 — Varmuuskopiointi (suositeltu päivittäin)</h2>
+<div class="vaihe"><span class="merkki">1.</span> Kokeile: <code>Tyokalut\Varmuuskopioi.ps1</code> → kopio syntyy kansioon <code>%USERPROFILE%\Huoltokello-Varmuuskopiot</code> (sailyttaa 30 uusinta).</div>
+<div class="vaihe"><span class="merkki">2.</span> Ajasta yöajo (Tehtävä-ajastus). Komentorivillä yhtenä rivi:</div>
+<div class="cmd">schtasks /Create /TN "Huoltokello Varmuuskopio" /SC DAILY /ST 23:00 /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\Users\TUNNUS\AppData\Local\Huoltokello\Tyokalut\Varmuuskopioi.ps1\""</div>
+<p>Palautus: <code>Tyokalut\Palauta-Varmuuskopio.ps1</code> (valitse varmuuskopio listasta — nykyinen data varmuuskopioidaan ensin).</p>
+<div class="varoitus">Huoltokellon data on asennuskansion <code>AppData</code>-kansiossa (tietokanta, kuvat/liitteet, salausavaimet). Ota <b>koko AppData-kansio</b> mukaan ulkoisiin varmuuskopioihin (esim. USB-levy tai pilvi).</div>
+
+<h2>Päivittäminen ja poisto</h2>
+<ul>
+  <li><b>Päivitys:</b> saat uuden <code>app.zip</code>-paketin → aja <code>Tyokalut\Paivita.ps1</code> ja valitse zip. Data sailytetaan (pikavarmuus otetaan ensin).</li>
+  <li><b>Poisto:</b> Windowsin asetukset → Sovellukset → <b>Huoltokello</b> → Poista (tai <code>Tyokalut\Poista-Asennus.ps1</code>). Data voi jäädä varmuuskopiona työpöydälle.</li>
+</ul>
+
+<h2>Ongelmanratkaisu</h2>
+<table>
+  <tr><th>Oire</th><th>Ratkaisu</th></tr>
+  <tr><td>"Portti on varattu" / sivu ei avaudu</td><td>Joku toinen ohjelma käyttää porttia. Avaa asennuskansion <code>Huoltokello.ps1</code> tekstinä ja vaihda rivi <code>$Port = 8088</code> toiseen (esim. 8090), aja <code>Tyokalut\Lopeta.ps1</code> + <code>Kaynnista.ps1</code>.</td></tr>
+  <tr><td>Sivu ei avaudu ylipäätään</td><td>Aja <code>Tyokalut\Kaynnista.ps1</code>. Jos ei auta: katso loki <code>AppData\app-err.log</code>.</td></tr>
+  <tr><td>Puhelin ei pääse palvelimelle</td><td>Aja <code>Tyokalut\PuhelinKaytto.ps1</code> uudelleen (palomuurisääntö). Tarkista että kone ja puhelin ovat samassa WiFi-verkossa. Kumoa: <code>PuhelinKaytto.ps1 -Poista</code>.</td></tr>
+  <tr><td>Salasana unohtunut</td><td><code>Tyokalut\Luo-YllapitajaTili.ps1</code> → uusi johtotili → vaihda vanhan tilin salasana sovelluksessa.</td></tr>
+  <tr><td>Kirjautuminen ei onnistu</td><td>Tarkista tili on aktiivinen (Hallinta → Käyttäjät). 10 väärää yritystä lukitsee tilin 10 minuutiksi.</td></tr>
+  <tr><td>Tehtäviä ei voi luoda</td><td>Tehtävätyyppejä ei ole lisätty → lisää Hallinta → Tehtävätyypit (vaihe 1).</td></tr>
+  <tr><td>Tietokanta "lukossa"</td><td>Aja <code>Tyokalut\Lopeta.ps1</code>, odota 10 s, <code>Kaynnista.ps1</code>.</td></tr>
+</table>
+
+<h2>Päivittäinen käyttö lyhyesti</h2>
+<ul>
+  <li><b>Ohjelma käynnistyy pikakuvakkeesta</b> (ja jää taustalle). Sulje: <code>Tyokalut\Lopeta.ps1</code> tai koneen sammutus.</li>
+  <li><b>Työntekijä:</b> Tehtävät → avaa tehtävä → Kuittaa (tunnit + tarvikkeet + kuvat). Puute → korjaustehtävä.</li>
+  <li><b>Työnjohto:</b> hyväksy puutteet, seuraa työnäytön KPI:ita (myöhässä, avoimet puutteet, läpilaskuttamatta, erääntyneet laskut), raportit → PDF/Excel-vienti.</li>
+  <li><b>Audit-loki</b> (Hallinta → Audit): tärkeiden muutosten jäljitys.</li>
+  <li><b>Viestit:</b> ryhmäviestit + lukukuittaukset; ilmoitukset kello-ikonissa.</li>
+</ul>
+
+<p style="margin-top:34px"><small>Huoltokello · kiinteistönhuollon taktinen työnhallinta · paikallinen asennus. Tämä opas löytyy myös asennuskansion Ohjeet-kansiosta, ja se avautuu Käynnistysvalikosta.</small></p>
+</body>
+</html>

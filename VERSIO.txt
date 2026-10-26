@@ -1,0 +1,234 @@
+HUOLTOKELLO - VERSIOLOKI
+========================
+
+v2.7.3 (30.9.2026)
+------------------
+- KORJAUS: SMTP-lahetys hylkaantyi ilman suojausta ("530 5.7.0 Authentication Required"):
+  Outlook.com/M365, Gmail ym. eivat tarjoa AUTH-loikkaa ennen suojattua STARTTLS-yhteytta.
+  Lahetys suojataan nyt AUTOMAATTISESTI, kun palvelin tarjoaa STARTTLS:n, myos jos
+  "TLS/STARTTLS-kaytto" oli jaetty valitsematta — korjaus tallentuu appsettings.jsoniin
+  ja sivu ilmoittaa siita (myos alkusalasanalahetykset toimivat ilman toimenpiteita).
+- Tallennuksen automaattikorjaus: tunnetuille palveluille (esiasetukset + domain-
+  tunnistus) TLS kytketaan paalle tallennettaessa, joten suojaamaton konfiguraatio
+  ei tallennu enkaa.
+- Selkeampi 530-virheilmoitus suomalaisella syy-ohjeella; portti 465 (implisiittinen
+  SSL) palauttaa selkean ohjeen siirtymisesta porttiin 587 (SmtpClient ei tue
+  implisiittista SSL:a, vain STARTTLS:a).
+- Lahde-appsettings.json siivottu testi-tiedoista (julkaisujen suojaustarkistukset
+  pysyvat voimassa kuten aiemmin).
+- Sovelluksen versio 2.7.2 -> 2.7.3 (Paivitykset-valikko + alatunniste).
+
+v2.7.2 (30.9.2026)
+------------------
+- Salasanan tila naytyy Asetukset > Sahkopostila hetys -sivulla: tallennusaika + pituus.
+  Tyhja salasana-kentta tallennuksessa = AIEMPI (mahdollisesti vaara) salasana jaat
+  kayttoon — stale-vian nakee nytein ja korjaa kirjoittamalla uudelleen.
+- Salasanasta poistetaan kaikeli valilyonnit tallennuksessa ja lahetyksessa
+  (Google-tyyliset ryhmitellyt "abcd efgh ijkl mnop" sovellussalasanat muuten
+  katkaisevat SMTP-tunnistautumisen).
+- SMTP-palvelimen saavutettavuustesti ENNEN lahetyksta: TCP-yhteys (5 s) + SMTP-tervehdys
+  + EHLO-kyvykkyydet — selvittaa verkko-estot, puuttuvan STARTTLS:n (465 implisiittinen
+  SSL tuettu koeluokituksessa) ja erottaa ne hylatysta tunnistautumisesta (5.7.57/535).
+- Lahettaja-hakuretry: jos palvelu hylkaa lahetetttavan eri osoitteesta (5.7.60 / send as),
+  yritetaan automaattisesti tilin omalla osoitteella; korjaus tallentuu, jos se toimi.
+- Sovelluksen versio 2.7.1 -> 2.7.2 (Paivitykset-valikko + alatunniste).
+
+v2.7.1 (30.9.2026)
+------------------
+- SMTP-testilahetyksen vianhaku: virhe luokitellaan sivulla (tunnistautuminen hylatty /
+  Lahettaja-oikeus / TLS / rajoitus / verkko) ja naytetaan tarkat ohjeet aiheen mukaan.
+  Yleisin 5.7.57 / 535 -virhe: SMTP ei hyvaksy tavallista kirjautumissalasanaa —
+  2-vaiheinen vahvistus paalla → kaytota SOVELLUSSALASANAA; Outlook.com-asetuksista
+  POP/SMTP-sallinta paalle; M365-tillila yllapitaja sallii SMTP AUTH:n.
+- Automaattikorjaus tallennuksessa: Outlook.com/Hotmail (smtp-mail.outlook.com) vaatii
+  lahetetttavan tilin omalla osoitteella — Lahettajan osoite asetetaan = Kayttajatunnus.
+- Tunnuksien siivous: Kayttajatunnus/salasana/osoitteet trimmataan (liitteet/välilyonnit
+  poistuu — yleisin "oikea tunnus ei kelpaa" -syy).
+- Testivastaanottaja muistetaan seuraavaa testilahetysta varten.
+- Sovelluksen versio 2.7.0 -> 2.7.1 (Paivitykset-valikko + alatunniste).
+
+v2.7.0 (30.9.2026)
+------------------
+- Palautussähköpostin VAHVISTUS (kummassakin versiossa, netti + tyopoyta):
+  Kun kayttaja tallentaa palautussahkopostin (Omat tiedot), ohjelma lahettaa
+  osoitteeseen vahvistuslinkin (voimassa 24 h). Linkin avaus merkitsee osoitteen
+  vahvistetuksi ja HYVAKSYTYKSI salasanan palauttamista varten — ohjelma nayttaa
+  vahvistusilmoituksen.
+- Turvalogiikka: alkusalasana lahetaan palautussahkopostiin VAIN jos se on vahvistettu.
+  Muuten viesti lahetaa tilin omalle osoitteelle ja johto saa huomautuksen.
+  Vahvistustila naytyy Omat tiedot -sivulla + Johto-valikossa (Sahkopostilahetykset).
+- Omat tiedot: "Laheta vahvistuslinkki" -painike (uudelleenlahetys), vahvistustilan
+  tuloste (vahvistetty / linkki lahetetty / ei vahvistettu).
+- Tokenit tallennetaan vain SHA-256-tiisteenä (ei itse tokenia); muutos osoitteessa
+  peruu vanhan vahvistuksen.
+- SMTP-vianhaun parannus: Outlook-virheiden 5.7.57 / 535 tulkinta (tunnistautuminen,
+  Lahettajan osoite = Kayttajatunnus, SMTP AUTH).
+- Ei rikkovaa tietokantamuutosta: uudet sarakkeet lisataan idempotentilla
+  skeemapäivityksellä (RecoveryEmailVerified/-At/-TokenHash/-TokenExpires).
+- Sovelluksen versio 2.6.0 -> 2.7.0 (Paivitykset-valikko + alatunniste).
+
+v2.6.0 (30.9.2026)
+------------------
+- Sähköpostilähetyksille OMAT valikko käyttäjähallinnan puolella, Näkyy VAIN Johdolle:
+  Hallinta → ✉️ Sähköpostilähetykset. Sieltä valitaan, mitkä sähköpostit SALLITAAN
+  salasanojen lähetykseen (kaikki tilit ja palautussähköpostit tarjolla ruudullisesti).
+  Alkusalasana lähetetään vain sallituille osoitteille; muut torjutaan jo ennen
+  salasanan vaihtamista.
+- Tuettujen sähköpostipalveluiden SMTP-asetukset automatisoitu valmiiksi: kun lähettäjän
+  sähköpostiosoite kirjoitetaan (esim. yritys@hotmail.com), SMTP-palvelin ja portti
+  täyttyvät automaattisesti (hotmail → smtp-mail.outlook.com:587, gmail → smtp.gmail.com
+  jne. kaikille tuetuille palveluille). Käyttäjätunnus täyttyy osoitteesta.
+- Turvaparannus johtoon "Uusi salasana" -toimintoon: tarkistukset ENNEN muutosta.
+  Jos SMTP-lähetys ei ole käytössä tai vastaanottaja ei ole sallituissa osoitteissa,
+  salasanaa EI vaihdeta (käyttäjä ei jää lukkoja pahemmassa tilanteessa) ja johto saa
+  selkeän ohjeen.
+- Ei tietokantamuutoksia; sallitut osoitteet ja SMTP-asetukset asennuskansion
+  appsettings.json -tiedostossa (päivitys (Paivita.ps1) säilyttää ne).
+- Sovelluksen versio 2.5.0 -> 2.6.0 (Paivitykset-valikko + alatunniste).
+
+v2.5.0 (29.9.2026)
+------------------
+- Salasanan luonti koneellisesti (Johto): Hallinta > Kayttajat > "Uusi
+  salasana" -painike luo vahvan alkusalasanan, lahettaa sen kayttajalle
+  sahkopostilla ja pakottaa vaihtamaan sen heti kirjautuessa. Salasana
+  naytyy VAIN sahkopostissa (audit-lokiin vain peitetty osoite).
+- SMTP-lahetyksen asetukset (Asetukset > Sahkopostila hetys): valmiit
+  esiasetukset Gmailille, Outlook/M365:lle, ProtonMailille, Yahoolle,
+  Telialle, Elisalle/Saunalahdelle, DNA:lle, Zoholle, iCloudille ym.,
+  testilahetys toimivuuden varmistamiseksi. Email-tilin salasanaa ei
+  nayteta kayttoliittymassa eika tallenneta tietokantaan.
+- Omat tiedot: kayttaja voi tallentaa palautussahkopostin, johon uusi
+  alkusalasana lahetetaan (jos tilin tunnus on esim. noreply-osoite).
+- Pakotettu salasanan vaihto heti kirjautumisen jalkeen.
+- Kirjautumissojaus: 5 vaaraa yritysta -> 15 min lukitus.
+- Sovelluksen versio 2.4.1 -> 2.5.0 (Paivitykset-valikko + alatunniste).
+
+v2.4.2 (27.9.2026)
+------------------
+- Tyopoytakuvakkeet korjattu: paketin assets\huoltokello.ico oli
+  vioittunut (74 tavua), jolloin pikakuvakkeet nayttivat tyhjina.
+  Uudet monikokoiset kuvakkeet (16-256 px, 32-bittinen alfa) piirretaan
+  Tyokalut\Luo-Kuvakkeet.ps1-tyokalulla: Huoltokello = toimistotietokone
+  + kello, Huoltokello-Ohjeet = lamppu.
+- Asennusvelho kopioi molemmat kuvakkeet asennuskansioon ja asettaa
+  tyopoydan ja kaynnistysvalikon pikakuvakkeille omat kuvakkeensa.
+- Uusi Tyokalut\Korjaa-Kuvakkeet.ps1: korjaa jo asennetun version
+  pikakuvakkeet ilman uudelleenasennusta (paivittaa kuvakkeet,
+  pikakuvakkeet ja Windowsin kuvakevalimuistin).
+- Asennusohjeet.txt: uusi luku 13 (kuvakkeet, kuvakkeen vaihto kasin,
+  Microsoftin kuvakepankit imageres.dll / shell32.dll).
+
+v2.4.1 (26.9.2026)
+------------------
+- TIETOTURVAKOVITUS (priorisoitu toimenpidelista):
+  1) HTTPS-pakotus paalle Azure App Servicessa (https-only) + HSTS
+     sovelluskoodissa tuotannossa.
+  2) VAPID-yksityisavain POIS julkaisupaketista: Azure lukee avaimen
+     App Settings -muuttujasta (Vapid__PrivateKey); tyopoyta-asennus
+     kirjoittaa sen appsettings.Production.json -tiedostoon, jota
+     paivityspaketti ei koskaan ylikirjoita. Asennusvelho luo jokaiselle
+     asennukselle OMAN avainparin (ES256/P-256) ja rajaa tiedoston ACL:n
+     vain nykyiseen kayttajaan. Aiempi avain siirretaan paivityksessa
+     automaattisesti (push-tilaukset sailyvat). Julkaisu- ja paketointi-
+     skripteihin tarkistus, joka keskeyttaa jos avain valuu pakettiin.
+  3) Demotunnukset pois tuotannosta: SeedDemoData oletuksena POIS
+     (appsettings.json + koodin oletusarvot) - demopainikkeet eivat nay
+     kirjautumissivulla. Azureen asetettu SeedDemoData=False.
+  4) Turvaotsakkeet kaikille vastauksille: Content-Security-Policy,
+     X-Content-Type-Options, X-Frame-Options, Referrer-Policy ja
+     Permissions-Policy (kamera sallitaan QR-skannausta varten).
+  5) HTTP/2 paalla Azure App Servicessa.
+  6) Levosalaus: arvioitu - App Servicen tallennus salataan alustan
+     puolesta; tyopoytaversiossa vastuulla on koneen BitLocker.
+- Sovelluksen versio 2.4.0 -> 2.4.1 (Paivitykset-valikko + alatunniste).
+- Kehitysymparisto: VAPID-yksityisavain siirretty user-secretsiin
+  (dotnet user-secrets), ei enaa appsettings.jsoniin.
+
+v2.4.0 (26.9.2026)
+------------------
+- Laskutuksen vienti kirjanpitojarjestelmaan (REST): Procountor,
+  Netvisor ja Fennoa. Vienti yhdella klikkauksella laskun nakymasta
+  (kortti), vientiloki tiloineen ja uusinta epaonnistuneelle viennille.
+  Yhteydet maaritetaan asennuskansion appsettings.json -tiedoston
+  Accounting-osasta (API-avaimet kirjanpitojarjestelman hallinnasta).
+- ASENNUSPAKETTI rakennettu uudelleen (app.zip + _stage): aiempi
+  paketti oli v2.0.1-tasolta (25.9. klo 19), joten asennusvelho
+  ei asentanut v2.1.0-v2.4.0 uudistuksia. Nyt mukana: QR-skannaus,
+  push-ilmoitukset, offline-kirjaus, uusi service worker ja
+  kirjanpitovienti. Rekisteriversio 2.0.1 -> 2.4.0.
+
+v2.3.0 (25.9.2026)
+------------------
+- Web Push -ilmoitukset: uudesta tehtavasta ilmoitus laitteelle
+  vaikka sovellus ei olisi auki (navigaation ilmoituspainike).
+- Reittilinkit (Google Maps): tehtavalista, kuittauslomake ja
+  "Reitti kohteille" -painike suodatuksen mukaisille kohteille.
+- Asiakkaan vastaanoton allekirjoitus kuittauslomakkeella
+  (tallentuu tehtavan liitteeksi; toimii myos offline-kirjauksessa).
+
+v2.2.0 (25.9.2026)
+------------------
+- Offline-kirjaus: kuittauslomake toimii ilman verkkoa; kirjaus
+  tallentuu laitteeseen ja lahtee automaattisesti verkon palattua.
+- PWA toimii offline: sovellus ja avatut sivut valimuistissa;
+  /health-tarkistus aina suoraan verkosta (service worker).
+- QR-tarrojen massatulostus Kohteet-sivulta (kaikki kohteet yhdella sivulla).
+
+v2.1.0 (25.9.2026)
+------------------
+- QR-skannaus puhelimella (Skannaa-valikko, jsQR): kohteen tarran
+  lukeminen avaa kohteen tehtavalistan suoraan.
+- Istunto pitennetty 10 h -> 30 paivaa (liukuvanhennus).
+- Mobiilinakyma viimeistelty (isommat painikkeet, iOS-zoom korjattu).
+
+v2.0.1 (25.9.2026)
+------------------
+- KORJAUS (sovellus): Hallinta > Tehtavatyypit -sivu kaatui virheeseen 500
+  (rikkinainen List<dynamic>-tyyppimuunnos nakymassa), joten uusia
+  tehtavatyyppeja ei voinut luoda lainkaan - ja siksi tehtavaformin
+  "Tehtavatyyppi (varikoodi)" -valinta ja vuosikellon varit jaivat tyhjiksi.
+  Sivu korjattu vahvasti tyypitetyyn malliin (CategoryListViewModel).
+- KORJAUS (sovellus): tehtavatyypin muokkauksessa kuvauksen ja vaadittujen
+  kuittaustietojen tyhjentaminen ei tallentunut - tallentuu nyt oikein.
+- Sovelluksen versio 2.0.0 -> 2.0.1 (Paivitykset-valikko + alatunniste).
+- Tyontekijaryhmat: Ryhmat-sivu toimi jo aiemmin; huom. tehtavaformin
+  "Tyontekijaryhma"-valinta tayttyy heti, kun Hallinta > Ryhmat -sivulla
+  on luotu ryhmat (syy tyhjiin valintoihin oli estynyt tehtavatyyppien
+  luonti + puuttuvat ryhmat).
+- KORJAUS (velho): "Poista asennus..."-painike kohdisti poiston vaaraan
+  kansioon — poisto-tyokalu kaynnistyi pakettikansiosta ja paatteli
+  asennuskansiosta skriptin sijainnin perusteella. Aiempaa asennusta
+  (%LOCALAPPDATA%\Huoltokello) ei poistettu eika sovellus sulkeutunut.
+- Tyokalut\_yhteinen.ps1: Get-HkInstallDir tunnistaa asennuskansion
+  nyt luotettavasti (kutsujan ohitus -> Sovellukset-listauksen
+  InstallLocation -> ohjelmatiedoston etsinta -> oletuskansio).
+  Stop-HkApp odottaa prosessin varmaa paattymista (tiedostolukot).
+- Poista-Asennus-GUI.ps1 / Poista-Asennus.ps1: uusi -InstallDir-parametri;
+  kansion poistoa yritetaan 3 kertaa lukkojen varalta; hiljainen ajo
+  ei nosta UAC-ikkunaa palomuurisaannon poistossa.
+- Velhon painike kayttaa ensisijaisesti asennetun kansion poistotyokalua,
+  muuten paketin tyokalua -InstallDir-osoituksella.
+
+v2.0.0 (25.9.2026)
+------------------
+- Lahiverkkokaytto: muut tietokoneet ja puhelimet samassa WiFi-verkossa
+  kayttavat samaa dataa reaaliajassa (SignalR). Asennusvelho maarittaa
+  kuunteluosoitteen (0.0.0.0) ja palomuurisaannon automaattisesti.
+- Uusi Asetukset-valikko (Johto): puhelinkayton paalle/pois, verkko-osoitteet,
+  palomuurin tila, lahiverkon kayttajien lista ja PWA-ohjeet.
+- Kayttajat verkossa: samat tunnukset toimivat kaikista koneista ja
+  puhelimista (Hallinta > Kayttajat + huomautus kayttajasivulla).
+- Graafinen asennuksen poisto: Tyokalut\Poista-Asennus-GUI.ps1
+  (+ Windowsin Sovellukset-lista avaa nyt sen).
+- Velho havaitsee aiemman asennuksen ja nayttaa "Poista asennus"-painikkeen.
+- Paivitykset-valikko sovelluksen sisalla (versioloki kaikille kayttajille).
+- Prioriteettivarit alasvetovalikoissa (tehtava + toistuva tehtava):
+  vihrea/matala, sininen/normaali, punainen/kiireellinen.
+- Vuosikello: kiireellisyys-suodatus + prioriteettimerkinnat tehtavakorteissa.
+- Versio 2.0.0 (sovellus + rekisteri).
+
+v1.x
+----
+- Vuosikello, raahaus, reaaliaikapivitykset, tumma tila, PWA
+- Kuittausliitteet, uudistusniput, laskutus, raportit, QR-koodit
+- Paikallinen asennusvelho (tyhja asennus, ei demodataa)

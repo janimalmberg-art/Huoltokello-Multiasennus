@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Huoltokello - Multiasennusopas</title>
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; color:#1f2937; background:#f8fafc; margin:0; }
+  header { background:#1e3a5f; color:#fff; padding:28px 32px; }
+  header h1 { margin:0 0 6px 0; font-size:26px; }
+  header p { margin:0; opacity:.85; font-size:14px; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 32px 60px 32px; }
+  h2 { color:#1e3a5f; border-bottom:2px solid #e2e8f0; padding-bottom:6px; margin-top:36px; font-size:20px; }
+  h3 { color:#0f172a; margin-top:22px; font-size:15px; }
+  .kortti { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; margin:14px 0; }
+  .kortti b.tunnus { display:inline-block; background:#1e3a5f; color:#fff; border-radius:6px; padding:2px 10px; font-size:12px; margin-right:8px; }
+  .varoitus { background:#fff7ed; border:1px solid #fdba74; border-radius:10px; padding:12px 16px; margin:14px 0; }
+  .vihje { background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:12px 16px; margin:14px 0; }
+  table { border-collapse: collapse; width:100%; margin:12px 0; background:#fff; font-size:14px; }
+  th, td { border:1px solid #e2e8f0; padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:#eef2f7; }
+  code, pre { font-family: Consolas, "Courier New", monospace; }
+  code { background:#eef2f7; padding:1px 5px; border-radius:4px; font-size:13px; }
+  pre { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; line-height:1.5; }
+  ol li, ul li { margin:4px 0; line-height:1.55; }
+  .pieni { font-size:12px; color:#64748b; }
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128340; Huoltokello - Multiasennusopas</h1>
+  <p>Kiinteistönhuollon taktinen työnhallinta · paikallinen asennus, Microsoft Azure tai yrityksen oma palvelin</p>
+</header>
+<main>
+
+<h2>1. Mikä tämä paketti on?</h2>
+<p>Tämä on Huoltokello-ohjelman <b>asennuspaketti</b>. Aja <code>Asenna.cmd</code>: asennusvelho opastaa vaihe vaiheelta.
+Valitset <b>asennustavan</b>, syötät tarvittavat tiedot, annat <b>luvan</b> skriptin toimintoihin (LUVAT-sivulla) ja seuraat
+edistymistä. Ohjelma asennetaan <b>tyhjänä</b> - käyttöönoton teet ohjeiden mukaan (opas:
+<a href="Kayttoonotto-Opas.html">Kayttoonotto-Opas.html</a>).</p>
+
+<h2>2. Valitse asennustapa</h2>
+<div class="kortti"><b class="tunnus">1</b><b>Paikallinen</b> - ohjelma omalle koneellesi. Kansio ja portti valitaan velhossa
+(oletus <code>%LOCALAPPDATA%\Huoltokello</code>, portti 8088). Sopii yksittäiselle käyttäjälle ja arviointiin.</div>
+<div class="kortti"><b class="tunnus">2</b><b>Microsoft Azure</b> - ohjelma Microsoftin pilveen <b>käyttäjän omalla</b>
+Microsoft-tilillä (kirjautuminen laitekoodilla). Velho luo resurssit Azure-tilaukseesi ja vie ohjelman sinne.
+Sopii käytön jakamiseen useille koneille ja puhelimille.</div>
+<div class="kortti"><b class="tunnus">3</b><b>Yrityksen oma Windows-palvelin</b> - velho asentaa ohjelman yrityksen omalle
+Windows-serverille WinRM-yhteydellä. Kaikki palvelintiedot (osoite, tunnukset, polku, portti) syötetään käsin.</div>
+
+<h2>3. Paikallinen asennus</h2>
+<ol>
+  <li>Valitse <b>Paikallinen</b> ja anna asennuskansio sekä portti.</li>
+  <li>Anna <b>ensimmäisen ylläpitäjätilin</b> tiedot (nimi, sähköposti, titteli ja salasana). Tili saa roolin <b>Johto</b>.</li>
+  <li>Valitse halutessasi: työpöydän pikakuvake, Käynnistä-valikko, automaattinen käynnistys Windowsin käynnistyessä,
+      puhelinkäyttö lähiverkossa (WiFi - pyytää ylläpitäjän salasanan palomuurisäännölle) ja selaimen avaus heti asennuksen jälkeen.</li>
+  <li>Tarkista yhteenveto, anna LUVAT ja paina <b>Asenna</b>. Lopuksi velho avaa ohjelman ja oppaan.</li>
+</ol>
+<h3>Päivitys aiempaan asennukseen</h3>
+<p>Velho havaitsee aiemman asennuksen samasta kansiosta ja <b>päivittää ohjelman koskematta tietoihin</b>:
+käyttäjät ja tietokanta säilyvät, ja VAPID-yksityisavain (push-ilmoitukset) siirretään paikoilleen.</p>
+
+<h2>4. Microsoft Azure -asennus</h2>
+<div class="varoitus"><b>Huom:</b> Velho tekee muutoksia <b>sinun omaan Azure-tilaukseesi</b> antamilla oikeuksillasi.
+Käyttökulut tulevat sinulle (App Service -hintataso: B1 edullisin, F1 ilmainen testikäyttö, P1v2 tuotantoon).
+Poisto: poista velhon ilmoittama resurssiryhmä (esim. <code>huoltokello-rg</code>) Azure-portaalissa
+<i>Resource groups &rarr; Delete</i>.</div>
+<ol>
+  <li>Valitse <b>Microsoft Azure</b>. Anna <b>sovelluksen nimi</b> (pienillä kirjaimilla, väliviivoilla - siitä muodostuu
+      osoite <code>https://nimi.azurewebsites.net</code>), resurssiryhmä (oletus <code>huoltokello-rg</code>), alue
+      (suositus <code>finlandiacentral</code>) ja hintatason (oletus B1). Tilaustunnus on valinnainen.</li>
+  <li>Anna ylläpitäjätilin tiedot (tili luodaan ohjelmaan ensimmäisellä käynnistyksellä).</li>
+  <li>Velho tarvitsee <b>Azure CLI:n</b> (az). Jos se puuttuu, velho asentaa sen puolestasi (UAC-kysely) - tai asenna se itse etukäteen.</li>
+  <li>Kirjautuminen tapahtuu <b>laitekoodilla</b>: velho näyttää koodin ja avaa osoitteen
+      <a href="https://www.microsoft.com/devicelogin" target="_blank">www.microsoft.com/devicelogin</a>.
+      Kirjaudu omalla Microsoft/Azure-tililläsi. Tili tarvitsee kirjoitusoikeuden tilaukseen (esim. Osallistuja).</li>
+  <li>Velho tarkistaa tilauksen kirjoitusoikeudet, luo resurssit, tallentaa asetukset (ml. VAPID-avaimet),
+      vie sovelluksen zip-pakettina, käynnistää sovelluksen, odottaa terveystarkistuksen vastausta ja
+      varmistaa, että kirjautumissivu vastaa. Lopuksi avaa osoitteen selaimessa.</li>
+</ol>
+
+<h2>5. Yrityksen oma Windows-palvelin</h2>
+<ol>
+  <li>Valitse <b>Yrityksen oma Windows-palvelin</b> ja anna: <b>osoite</b> (esim. <code>SRV-KONTTORI</code> tai IP),
+      <b>ylläpitotunnus</b> (esim. <code>SRV-KONTTORI\Admin</code> tai DOMAIN\user), salasana, kohdekansio
+      (oletus <code>C:\Huoltokello</code>) ja <b>portti</b> (oletus 8080).</li>
+  <li>Jos palvelin <b>ei ole toimialueessa</b> (esim. työryhmäpalvelin): ruutu pyytää lupaa lisätä palvelimen nimi
+      omalle koneelle WinRM TrustedHosts -listaan (yksi UAC-kysely, tarvitaan vain kerran palvelinta kohden).</li>
+  <li>Velho siirtää paketin palvelimelle SMB:llä, purkaa sen, rajaa kansion oikeudet palvelimen ylläpitäjille (icacls),
+      avaa TCP-portin palomuuriin, luo <b>tehtävä-ajastuksen</b> (Huoltokello-Palvelu, ylläpitäjänä SYSTEM, ONSTART),
+      käynnistää palvelun ja odottaa terveystarkistuksen vastausta. Tietokanta ja asetukset säilyvät päivityksessä;
+      ohjelmatiedostot ylikirjoitetaan.</li>
+  <li>Palvelun osoite on muodossa <code>http://osoite:portti</code>. Halutessasi velho luo työpöydälle pikakuvakkeen (Huoltokello.url).</li>
+</ol>
+<div class="vihje"><b>Ennen asennusta tarkista:</b> WinRM käynnissä palvelimella, TCP-portti vapaana, ja että sinulla on
+ylläpitöoikeudet kohdepalvelimelle.</div>
+
+<h2>6. Yhteiset vaiheet: ylläpitäjä, LUVAT ja yhteenveto</h2>
+<ul>
+  <li><b>Ensimmäinen ylläpitäjätili</b>: nimi, sähköposti, titteli (oletus "Vastaava") ja salasana.
+      Vaatimukset salasanalle: vähintään 8 merkkiä, yksi suuraakkonen ja yksi numero tai erikoismerkki.
+      Salasana tallennetaan vain hashattuna (salt). Tili luodaan ohjelmaan ensimmäisellä käynnistyksellä.</li>
+  <li><b>LUVAT-sivu</b>: ennen asennusta velho pyytää <b>luvan toimia käyttäjän puolesta</b> ja listaa tasan ne
+      toimet, joita valittu asennustapa tekee (tiedostot, rekisteri, palomuuri, Azure-resurssit, WinRM-komennot...).
+      Lupa on pakollinen; hiljaisessa asennuksessa vastine on kytkin <code>-HyvaksyLuvat</code>.</li>
+  <li><b>Yhteenveto</b> näyttää kaikki asetukset ennen aloitusta; <b>asennussivu</b> tulostaa jokaisen vaiheen
+      tuloksen (start/ok/virhe) ja pysähtyy heti ensimmäiseen virheeseen.</li>
+</ul>
+
+<h2>7. Hiljainen asennus ja itse testi</h2>
+<pre>powershell -NoProfile -ExecutionPolicy Bypass -File Asenna-Huoltokello-Multa.ps1 ^
+  -Silent -Mode paikallinen -InstallDir "C:\Huoltokello" -Port 8088 ^
+  -AdminName "Maija Meikäläinen" -AdminEmail "maija@firma.fi" ^
+  -AdminPassword "Salasana1" -HyvaksyLuvat</pre>
+<table>
+  <tr><th>Mode</th><th>Pakolliset</th><th>Valinnaiset</th></tr>
+  <tr><td><code>paikallinen</code> (oletus)</td><td>AdminName, AdminEmail, AdminPassword</td><td>InstallDir, Port, AutoStart, PhoneAccess, LanAccess, NoShortcuts, NoBrowser</td></tr>
+  <tr><td><code>azure</code></td><td>Admin* + AzName</td><td>AzRg, AzRegion, AzSku, AzSubscription, NoShortcuts, NoBrowser</td></tr>
+  <tr><td><code>serveri</code></td><td>Admin* + ServerHost, ServerUser, ServerPass</td><td>ServerPath, ServerPort, ServerNotDomain, NoShortcuts, NoBrowser</td></tr>
+</table>
+<p class="pieni">Hiljainen asennus vaatii aina kytkimen <code>-HyvaksyLuvat</code>. Poistumiskoodit: 0 ok, 1 asennus
+epäonnistui, 2 puuttuvat parametrit tai lupa puuttuu. Itse testin ajaa komennolla:</p>
+<pre>powershell -File Asenna-Huoltokello-Multa.ps1 -SelfTest</pre>
+
+<h2>8. Ongelmatilanteet</h2>
+<table>
+  <tr><th>Oire</th><th>Korjaus</th></tr>
+  <tr><td>"Tiedosto puuttuu paketista" käynnistettäessä</td><td>Pura <b>koko</b> Huoltokello-Multiasennus-kansio kokonaisuudessaan - älä siirrä vain osaa tiedostoista.</td></tr>
+  <tr><td>Velho ei avaudu</td><td>Aja <code>Asenna.cmd</code>. Varmista, että Windows Defender / ryhmäkäytännöt eivät estä PowerShell-skriptejä tässä kansiossa.</td></tr>
+  <tr><td>Portti on jo käytössä</td><td>Valitse toinen portti velhossa (tai -Port hiljaisessa asennuksessa).</td></tr>
+  <tr><td>Azure: tilillä ei kirjoitusoikeuksia</td><td>Pyydä tilauksen omistajalta Osallistuja-rooli tai valitse tilaus, jolla oikeus on (Tilaustunnus-kenttä).</td></tr>
+  <tr><td>Azure: CLI:n asennus epäonnistui</td><td>Asenna Azure CLI käsin osoitteesta aka.ms/installazurecliwindows ja käynnistä velho uudelleen.</td></tr>
+  <tr><td>Palvelin: yhteyttä ei saada</td><td>Tarkista WinRM (Get-Service WinRM palvelimella), osoite, tunnukset, TrustedHosts-korjaus (ei-toimialue) ja palomuurin TCP-portti.</td></tr>
+  <tr><td>Sivu ei aukea asennuksen jälkeen</td><td>Katso vaiheen virheilmoitus. Lokit: paikallisesti <code>%LOCALAPPDATA%\Huoltokello\AppData</code>, palvelimella <code>&lt;kansio&gt;\AppData</code> (app-err.log).</td></tr>
+</table>
+
+<h2>9. Tietoturva ja tiedot</h2>
+<ul>
+  <li>Salasanat tallennetaan vain hashattuina (salt). VAPID-yksityisavain pysyy paikallisessa tiedostossa,
+      jonka oikeudet rajataan nykyiselle käyttäjälle - se ei lähde päivityspaketeissa.</li>
+  <li>Puhelinkäytön palomuurisääntö luodaan vain erikseen annetulla luvalla (UAC).</li>
+  <li>Palvelimen kansio rajataan ylläpitäjille; WinRM-komennot ajetaan antamillasi tunnuksilla.</li>
+  <li>Azure-moodissa velho käyttää vain sinun tilaasi; kehittäjä ei saa mitään tietoja. Kirjautuminen tapahtuu
+      laitekoodilla suoraan Microsoftille.</li>
+</ul>
+
+<p class="pieni">Huoltokello Multiasennus · Asenna.cmd + Asenna-Huoltokello-Multa.ps1 · käyttöönotto: Ohjeet\Kayttoonotto-Opas.html</p>
+</main>
+</body>
+</html>
