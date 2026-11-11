@@ -264,4 +264,4 @@ n)
  - Ohjeet\Kayttoonotto-Opas.html: yksityiskohtainen kayttoonotto-opas
  - Asennus-yhteenveto.txt (asennuskansiossa): asennuksen tiedot
  - Huoltokello - kiinteistonhuollon taktinen tyonhallinta
-   Valmistaja: Huoltokello (dev@huolto.fi)
+   Valmistaja: Huoltokello (jani.malmberg@gmail.com)

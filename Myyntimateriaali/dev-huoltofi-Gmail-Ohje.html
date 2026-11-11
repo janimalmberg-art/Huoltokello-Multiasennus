@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Ohje: dev@huolto.fi → jani.malmberg@gmail.com</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #1f2937; background: #f1f5f9; }
+  .sivu { width: 210mm; height: 297mm; margin: 0 auto; background: #fff; padding: 16mm 15mm; position: relative; overflow: hidden; page-break-after: always; }
+  .sivu:last-child { page-break-after: avoid; }
+  h2 { color: #1e3a8a; font-size: 21px; margin-bottom: 4mm; border-bottom: 3px solid #ea580c; padding-bottom: 2mm; }
+  h3 { color: #1d4ed8; font-size: 15px; margin: 5mm 0 2mm; }
+  p, li { font-size: 12.5px; line-height: 1.5; }
+  ul, ol { margin: 2mm 0 2mm 6mm; }
+  li { margin-bottom: 1.5mm; }
+  .laatikko { background: #eff6ff; border-left: 4px solid #1d4ed8; padding: 3mm 4mm; margin: 4mm 0; border-radius: 0 3px 3px 0; }
+  .orange { background: #fff7ed; border-left: 4px solid #ea580c; }
+  .vihrea { background: #f0fdf4; border-left: 4px solid #16a34a; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0; font-size: 11.5px; }
+  th { background: #1e3a8a; color: #fff; padding: 2mm 2.5mm; text-align: left; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 1.8mm 2.5mm; vertical-align: top; }
+  code { background: #f1f5f9; padding: 0.5mm 1.5mm; border-radius: 2px; font-family: Consolas, monospace; font-size: 11px; color: #be123c; }
+  .askel { display: inline-block; background: #1d4ed8; color: #fff; font-weight: 700; border-radius: 50%; width: 7mm; height: 7mm; line-height: 7mm; text-align: center; margin-right: 2mm; }
+  .kansi { background: linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 100%); color: #fff; padding: 30mm 20mm; }
+  .kansi h1 { font-size: 34px; line-height: 1.2; margin-bottom: 8mm; }
+  .kansi p { color: #dbeafe; font-size: 14px; max-width: 155mm; }
+  .sivu-ala { position: absolute; bottom: 8mm; right: 15mm; font-size: 9.5px; color: #9ca3af; }
+</style>
+</head>
+<body>
+
+<!-- SIVU 1: KANSI -->
+<div class="sivu kansi">
+  <h1>✉ dev@huolto.fi<br>→ Gmailin saman pääpostilaatikkoon</h1>
+  <p>Asennusohje: <b>jani.malmberg@gmail.com</b> ottaa vastaan kaikki <code>dev@huolto.fi</code>-osoitteeseen saapuvat viestit
+     ja voi halutessaan <b>lähettää postia juuri tuolla osoitteella</b>.</p>
+  <p style="margin-top:6mm;">Valmiiksi tarkistettu tilanne (11.11.2026): domainissa on jo toimiva sähköpostipalvelin —
+     uudelleenohjaus ja Gmail-kytkentä onnistuvat ilman palvelinmuutoksia.</p>
+</div>
+
+<!-- SIVU 2 -->
+<div class="sivu">
+  <h2>Tilannekatsaus — mitä DNS:n ja porttien tarkistus osoitti</h2>
+  <table>
+    <tr><th>Kohde</th><th>Havainto</th><th>Vaikutus ohjeeseen</th></tr>
+    <tr><td>MX (huolto.fi)</td><td><code>huolto.fi</code> prioriteetti 0</td><td>Posti ajetaan omalla palvelimella → uudelleenohjaus mahdollinen</td></tr>
+    <tr><td>SPF (TXT)</td><td>sisältää <code>+a +mx</code> sekä NetFinnin <code>_spf…netfinn.net</code></td><td>Palvelin saa lähettää Gmailin puolesta → "Lähetä nimellä" ei mene roskiin</td></tr>
+    <tr><td>Nimipalvelimet</td><td>ns601-1/-2.netfinn.net</td><td>Alidomain-tietueet lisätään samassa hallinnassa</td></tr>
+    <tr><td>SMTP 465 / 587</td><td>Avoin</td><td>Gmail voi lähettää dev@-osoitteella</td></tr>
+    <tr><td>IMAP 993 / 143</td><td>Avoin</td><td>Laatikko on myös suoraan luettavissa (esim. Thunderbird)</td></tr>
+    <tr><td>POP3 110</td><td><b>Suljettu</b></td><td>Gmailin hakua (mail fetcher) EI suositella → käytä uudelleenohjausta</td></tr>
+    <tr><td>cPanel 2083</td><td>Avoin</td><td>Konfiguraatio tehdään <code>https://huolto.fi:2083</code></td></tr>
+  </table>
+
+  <div class="laatikko orange"><b>Suositeltu malli:</b> palvelimella ei luoda erillistä dev@-laatikkoa, vaan osoitteesta tehdään
+  <b>uudelleenohjaus (forwarder)</b> suoraan Gmailiin. Lähetys Gmailista tapahtuu SMTP:llä, jolloin vastaanotto ja lähetys
+  toimivat molemmat samassa pääpostilaatikossa.</div>
+  <h3><span class="askel">1</span>Kirjaudu palvelimen hallintaan (cPanel)</h3>
+  <ul>
+    <li>Avaa selaimessa <code>https://huolto.fi:2083</code> (tai palveluntarjoajan hallinnan osoite).</li>
+    <li>Tunnukset: hosting-palveluntarjoajan lähettämät kirjautumistiedot (NetFinn). Jos et tunne niitä, pyydä palveluntarjoajalta <b>cPanel- ja sähköpostitilin tunnukset</b>.</li>
+  </ul>
+
+  <h3><span class="askel">2</span>Uudelleenohjaus: dev@huolto.fi → Gmail</h3>
+  <ul>
+    <li>cPanelissa valikosta <b>Sähköposti → Uudelleenohjaukset (Forwarders)</b> → <b>Lisää uudelleenohjaus</b>.</li>
+    <li>Osoite: <code>dev</code> &nbsp;|&nbsp; Domain: <code>huolto.fi</code> &nbsp;|&nbsp; Kohde: <code>jani.malmberg@gmail.com</code>.</li>
+    <li>Valitse "Lähetä sähköpostille edelleen…" ja tallenna. <b>Valmis vastaanotto!</b> — kaikki dev@-posti ilmestyy nyt Gmail-laatikkoosi.</li>
+  </ul>
+
+  <div class="laatikko vihrea"><b>Haluatko myös arkistokopion palvelimelle?</b> Luo ensin oikea laatikko:
+  <b>Sähköposti → Sähköpostitilit → Luo tili</b>: <code>dev@huolto.fi</code> (vahva salasana — tarvitset sitä kohdassa 3).
+  Aseta tilille sisäinen uudelleenohjaus Gmailiin ("Forward All"), jolloin viestit kulkevat YHTÄ AIKAA laatikkoon ja Gmailiin.</div>
+
+  <h3><span class="askel">3</span>Gmail: lähetä postia nimellä dev@huolto.fi</h3>
+  <ul>
+    <li>Gmail → hammasratas → <b>Näytä kaikki asetukset → Tilit</b> → osiosta <i>Lähetä postia muilla osoitteilla (Send mail as)</i> → <b>Lisää toinen sähköpostiosoite</b>.</li>
+    <li>Nimi: (esim. "Huoltokello") · Sähköposti: <code>dev@huolto.fi</code> · anna osoite, valitse <b>"Käsittele aliaksena" ✓</b>.</li>
+    <li>SMTP-palvelin <code>huolto.fi</code> · Portti <b>465</b> · Salaus <b>SSL</b> (vaihtoehto 587 + STARTTLS) · Käyttäjätunnus <code>dev@huolto.fi</code> · Salasana: palvelimella luodun laatikon salasana.</li>
+    <li>Gmail lähettää vahvistusviestin — se saapuu forwarderin kautta juuri tähän samaan laatikkoon → vahvista koodilla tai linkillä.</li>
+  </ul>
+  <h3><span class="askel">4</span>Toimitusvarmuus: DKIM ja DMARC päälle</h3>
+  <ul>
+    <li>cPanel → <b>Sähköpostin toimitus (Email Deliverability)</b> → huolto.fi-riviltä <b>Enable DKIM</b> (DNS-tietueet lisätään automaattisesti).</li>
+    <li>Suositus lisäksi DMARC: DNS Zone Editor → TXT-tietue: nimi <code>_dmarc.huolto.fi</code>, arvo
+        <code>v=DMARC1; p=quarantine; rua=mailto:jani.malmberg@gmail.com</code> (raportit Gmailiin).</li>
+  </ul>
+
+  <h3><span class="askel">5</span>Testaa (5 min)</h3>
+  <ol>
+    <li>Lähetä Gmailista koeviesti itsellesi ja lähetä se <b>Lähettäjä: dev@huolto.fi</b>.</li>
+    <li>Avaa viesti Gmailissa → <i>Näytä alkuperäinen (Show original)</i> → tarkista <b>SPF: PASS, DKIM: PASS</b>.</li>
+    <li>Lähetä toinen viesti toisesta sähköpostista osoitteeseen <code>dev@huolto.fi</code> → se ilmestyy Gmailiin ~1 minuutissa.</li>
+  </ol>
+
+  <h3>Vianetsintä</h3>
+  <table>
+    <tr><th>Oire</th><th>Korjaus</th></tr>
+    <tr><td>Testiposti ei saavu Gmailiin</td><td>Tarkista forwarder (kohta 2) ja Gmailin roskakori — odota 1–3 min, tarkista myös "Kaikki viestit"</td></tr>
+    <tr><td>"Lähetä nimellä" ei vahvistu</td><td>Laatikko puuttuu tai salasana väärin: luo tili kohta 2:n vihreän laatikon tapaan ja kokeile uudelleen (portti 465 + SSL)</td></tr>
+    <tr><td>Viestit menevät vastaanottajan roskapostiin</td><td>Kytke DKIM (kohta 4) ja lisää DMARC-tietue; odota 1–24 h DNS-päivitystä</td></tr>
+    <tr><td>Gmailin POP-haku ei toimi</td><td>Syy: 110 on suljettu → älä käytä hakua; forwarder ratkaisee vastaanoton</td></tr>
+  </table>
+
+  <h3>Lisäosa: alidomain dev.huolto.fi samaan pääpostilaatikkoon</h3>
+  <p>Jos haluat erillisen alidomainin (esim. <code>@dev.huolto.fi</code>) osoitteet samaan Gmail-päälaatikkoon:</p>
+  <ul>
+    <li><b>1)</b> cPanel → <b>Domains → Create a New Domain/Subdomain</b>: <code>dev.huolto.fi</code> (muut tietueet luodaan automaattisesti).</li>
+    <li><b>2)</b> DNS Zone Editor → lisää MX-tietueet alidomainille: <code>dev.huolto.fi. IN MX 0 huolto.fi.</code> → posti ohjautuu samalle palvelimelle.</li>
+    <li><b>3)</b> Uudelleenohjaukset: lisää samaan tapaan <code>nimi@dev.huolto.fi → jani.malmberg@gmail.com</code> (cPanel: forwarder per osoite).</li>
+    <li><b>4)</b> Gmail: "Lähetä postia muilla osoitteilla" → lisää myös <code>nimi@dev.huolto.fi</code> samalla SMTP-kokoonpanolla (tunnus <code>nimi@dev.huolto.fi</code>).</li>
+    <li><b>5)</b> Testaa kuten kohdassa 5.</li>
+  </ul>
+
+  <div class="laatikko orange"><b>Tiivistelmä:</b> vastaanotto = cPanel-uudelleenohjaus dev@ → Gmail ·
+  lähetys = Gmail "Lähetä postia nimellä" + SMTP huolto.fi:465 (SSL) ·
+  alkuperäisyys = DKIM + SPF (valmis) + DMARC ·
+  alidomain = sama malli @dev.huolto.fi. Toteutus vie ~10 min.</div>
+
+  <p style="position:absolute;bottom:8mm;right:15mm;" class="sivu-ala">dev@huolto.fi — Gmail-kytkentäohje · 11.11.2026</p>
+
+
+</div>
+</body>
+</html>

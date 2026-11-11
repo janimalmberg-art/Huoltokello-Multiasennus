@@ -110,4 +110,4 @@ Päivittäinen käyttö: `Kaynnista` / `Lopeta` — **varmuuskopiointi** (`Varmu
 
 ## Lisenssi
 
-Kaupallinen ohjelmisto; **kaikki oikeudet pidätetään** — katso [LICENSE.txt](LICENSE.txt). Yhteydenotot ja käyttöoikeuskysymykset: dev@huolto.fi.
+Kaupallinen ohjelmisto; **kaikki oikeudet pidätetään** — katso [LICENSE.txt](LICENSE.txt). Yhteydenotot ja käyttöoikeuskysymykset: jani.malmberg@gmail.com.

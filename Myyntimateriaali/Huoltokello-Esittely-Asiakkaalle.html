@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Huoltokello — Ilmainen lisä Tampuurin ja Granlund Managerin rinnalle</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; margin: 0; background: #fff; line-height: 1.5; font-size: 12.5px; }
+  .page { width: 210mm; min-height: 297mm; padding: 16mm 16mm 14mm 16mm; page-break-after: always; position: relative; }
+  .sivu { position: absolute; bottom: 8mm; left: 16mm; right: 16mm; display: flex; justify-content: space-between; font-size: 9px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 3px; }
+  h1 { color: #1e3a8a; font-size: 28px; margin: 0 0 6px 0; }
+  h2 { color: #1d4ed8; font-size: 18px; margin: 16px 0 8px 0; border-bottom: 2px solid #dbeafe; padding-bottom: 4px; }
+  h3 { font-size: 13.5px; color: #334155; margin: 10px 0 4px 0; }
+  p { margin: 5px 0; }
+  ul, ol { margin: 5px 0 5px 18px; padding: 0; }
+  li { margin: 2.5px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; page-break-inside: avoid; }
+  th, td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: left; font-size: 11.5px; vertical-align: top; }
+  th { background: #eff6ff; color: #1e3a8a; }
+  .laatikko { background: #eef2ff; border-left: 4px solid #1d4ed8; padding: 9px 13px; border-radius: 6px; margin: 10px 0; }
+  .orange-box { background: #fff7ed; border-left: 4px solid #ea580c; padding: 9px 13px; border-radius: 6px; margin: 10px 0; }
+  .green-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 9px 13px; border-radius: 6px; margin: 10px 0; }
+  .arvio { color: #b45309; font-weight: 600; }
+  .kansi { background: linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 58%, #2563eb 100%); color: #fff; padding: 26mm 18mm; }
+  .kansi h1 { color: #fff; font-size: 38px; margin: 10mm 0 4mm 0; line-height: 1.15; }
+  .kansi .ala { margin-top: 20mm; font-size: 12.5px; color: #dbeafe; }
+  .nappi { display: inline-block; background: #ea580c; color: #fff; padding: 8px 18px; border-radius: 24px; font-weight: 700; font-size: 14px; margin-top: 6mm; }
+  .kpi { display: flex; gap: 8px; margin: 10px 0; }
+  .kpi div { flex: 1; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .kpi b { display: block; font-size: 16px; color: #1e3a8a; }
+  .kpi span { font-size: 9.5px; color: #475569; }
+  .palkki { height: 12px; background: #e2e8f0; border-radius: 7px; overflow: hidden; margin: 3px 0 8px 0; }
+  .palkki i { display: block; height: 100%; background: linear-gradient(90deg,#1d4ed8,#2563eb); border-radius: 7px; }
+  .flow { display: flex; gap: 6px; align-items: stretch; margin: 10px 0; }
+  .flow .box { flex: 1; border: 1.5px solid #c7d2fe; border-radius: 8px; padding: 8px 10px; background: #f8fafc; font-size: 10.5px; }
+  .flow .box b { color: #1e3a8a; display: block; margin-bottom: 3px; }
+  .flow .arrow { align-self: center; font-size: 20px; color: #1d4ed8; font-weight: bold; }
+</style>
+</head>
+<body>
+<!-- KANSI -->
+<div class="page kansi">
+  <div style="font-size:14px;color:#bfdbfe;">Kiinteistönhuollon taktinen työhallinta &middot; Asennuspaketti v2.7.3</div>
+  <h1>🕰️ Huoltokello<br>Ilmainen lisä Tampuurin ja Granlund Managerin rinnalle</h1>
+  <div style="font-size:15px;max-width:150mm;color:#e0e7ff;">
+    Toimiva <b>vuosikello</b> ja kenttätyön <b>kuittaus</b>: puolet vuoden toimenpiteistä näkyy yhdellä näkymällä,
+    ja jokainen työ kuitataan puhelimella QR-koodilla. Ei lisenssimaksuja. Ei integraatiotyötä. Ei muutoksia
+    nykyisiin järjestelmiin.
+  </div>
+  <div class="nappi">Säästöarvio: 26 000 – 92 000 € / vuosi (malliasiakas)</div>
+  <div class="ala">
+    <b>Malliasiakas:</b> kiinteistöhuoltoyhtiö — 12 kenttätyöntekijää, 2 esimiestä, 250 kohdetta &middot; Tampuuri ja/tai Granlund Manager jo käytössä<br>
+    Yhteys ja lisensointi: <b>jani.malmberg@gmail.com</b> &middot; Laskelmat ja lähteet: s. 5–8
+  </div>
+</div>
+
+<!-- TIIVISTELMÄ -->
+<div class="page">
+  <h1>Asiakasesitys — tiivistelmä</h1>
+  <div class="laatikko">
+    <b>Ydinsanoma:</b> Tampuuri ja Granlund Manager ovat erinomaisia <i>isäntäjärjestelmiä</i> — taloudesta, vuokrasta,
+    kiinteistödatasta ja strategisesta suunnittelusta. Ne eivät oletuksena tarjoa kentälle <i>kevyttä, reaaliaikaista
+    työnhallintaa</i> (vuosikello + QR-kuittaus + offline-kirjaus) sellaisenaan. Huoltokello tuo juuri tämän kerroksen —
+    <b>0 euron lisänä</b> — ilman yhtään muutosta olemassa oleviin järjestelmiin.
+  </div>
+
+  <div class="kpi">
+    <div><b>0 €</b><span>Huoltokellon lisenssimaksu</span></div>
+    <div><b>≈ 1 160 t</b><span>kentältä vapautuu vuodessa (tyypillinen)</span></div>
+    <div><b>≈ 55 000 €</b><span>vuosisäästö (tyypillinen skenaario)</span></div>
+    <div><b>&lt; 1 h</b><span>asennusvelhossa käyttöön</span></div>
+  </div>
+
+  <h2>Miksi juuri nyt ja juuri tämä?</h2>
+  <ul>
+    <li><b>Yhteensopivuus ilman hanketta:</b> ei rajapintaprojektia, ei lisenssineuvotteluja, ei muutoksia Tampuuri- tai Granlund-asennukseen. Huoltokello on oma selainpohjainen sovelluksensa — samat ihmiset, toinen näkymä.</li>
+    <li><b>Uusi tuottava kapasiteetti:</b> puhelinkuittaus QR:llä, offline-kirjaus ja push-ilmoitukset poistavat paperivaiheita, kyselykierroksia ja uusintakäyntejä. Vapautunut aika muuttuu myyntitunneiksi.</li>
+    <li><b>Ominaisuudet, joita isäntäjärjestelmistä ei aina löydy valmiina:</b> raahattava vuosikellonäkymä, QR-skannaus suoraan kohteen tehtävälistaksi, PWA puhelimeen ilman sovelluskauppaa, kuittaukseen liittyvä asiakkaan allekirjoitus, kirjanpitovienti yhdellä klikkauksella (Procountor / Netvisor / Fennoa).</li>
+    <li><b>Riskitön kokeilu:</b> 0 € alkuinvestointi, asennus yhden tunnin velholla, helppo poisto, paikallinen asennus toimii ilman internettiä, varmuuskopiot omalla koneella tai omassa pilvessä.</li>
+  </ul>
+
+  <div class="green-box">
+    <b>Roolijako rinnalla:</b> Tampuuri / Granlund Manager pysyy talouden ja kiinteistödatan <i>kirjanpitona</i>.
+    Huoltokellosta tulee työn <i>täytäntönpanokello</i>: kuka tekee, mitä, missä ja milloin — kuitattuna QR-koodilla
+    ja allekirjoituksella. Erot ovat näkyviä ja mitattavia ensimmäisellä viikolla.
+  </div>
+
+  <h3>Tämän esityksen sisältö</h3>
+  <ol>
+    <li>Mikä Huoltokello on: asennustavat, arkkitehtuuri, tietoturva</li>
+    <li>Vertailu: Tampuuri &middot; Granlund Manager &middot; Huoltokello</li>
+    <li>Lisenssimaksututkimus ja tyypilliset hintahaarukat (arvio, tarjousperusteiset tuotteet)</li>
+    <li>Rinnakkaismalli — mistä säästö syntyy</li>
+    <li>Säästölaskelma, 3-vuoden talousennuste ja kaikkien hyötyjen listaus</li>
+    <li>Käyttöönottotie, lähteet ja yhteys</li>
+  </ol>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>2 / 9</span></div>
+</div>
+<!-- TUOTE -->
+<div class="page">
+  <h1>1. Mikä Huoltokello on?</h1>
+  <p>Huoltokello on suomenkielinen, selainpohjainen <b>taktinen työhallinta kiinteistonhuoltoon</b>: yhdestä paikasta hallitaan kohteet, <span class="kello">vuosikello</span>, tehtävät, kuittaukset, laskutus ja raportit. Tiimi näkee
+  saman tiedon yhtä aikaa tietokoneilla ja puhelimilla. Käyttöönotto etenee vaihe vaiheelta käyttöönottoppaassa
+  (30–60 min), ja asennusvelho vie tyhjästä käyttövalmiiseen järjestelmään — ilman demodataa, ilman .NET-latauksia,
+  ilman internetiä (paikallisessa asennuksessa).</p>
+
+  <h3>Keskeiset ominaisuudet (v2.7.3)</h3>
+  <table>
+    <tr><th>Ominaisuus</th><th>Mitä se tuottaa</th></tr>
+    <tr><td><b>Vuosikello</b> — vuodenhuoltonäkymä, tehtäväkorttien raahaus, kiireellisyyssuodatus, prioriteettivärit (vihreä/sininen/punainen)</td><td>Koko vuoden toimenpidekuva yhdellä silmäyksellä — Excel-pohjainen vuosisuunnitelma korvautuu näkymällä, jonka tiimi näkee reaaliajassa.</td></tr>
+    <tr><td><b>Kuittaukset & QR</b> — kohteiden QR-tarrojen massatulostus; puhelimen skannaus avaa kohteen tehtävälistan suoraan (jsQR)</td><td>Työntekijä aloittaa työn 10 sekunnissa ilman listaa ja "mitä tässä kohteessa pitää tehdä?" -kyselykierrosta.</td></tr>
+    <tr><td><b>Reaaliaikainen monikäyttö</b> (SignalR) — koneet ja puhelimet samassa näkymässä</td><td>Esimies seuraa edistymistä kysymättä — vähemmän puheluita ja raportointipyyntöjä.</td></tr>
+    <tr><td><b>Offline-kirjaus</b> — tallentuu laitteelle verkottomana, lähtee automaattisesti palatessa (service worker)</td><td>Työ ei pysähdy verkon takia (kellarit, autotallit, katvealueet); kirjaus ei katoa.</td></tr>
+    <tr><td><b>Web Push</b> — uudet tehtävät laitteelle ilman sovelluksen käynnistämistä</td><td>Tehtävät jaetaan reaaliajassa — muistamispaine poistuu.</td></tr>
+    <tr><td><b>PWA puhelimeen</b> — "Lisää aloitusnäytölle", apinäkymä, tumma tila, ilman sovelluskauppaa</td><td>Ei MDM-hanketta, ei sovelluskauppalisenssejä.</td></tr>
+    <tr><td><b>Kuittausliitteet + asiakkaan allekirjoitus</b> kuittauslomakkeessa (myös offline)</td><td>Vastaanotto kirjataan nimellä — vähemmän riitoja ja epäselvyyksiä.</td></tr>
+    <tr><td><b>Laskutus + kirjanpitovienti yhdellä klikkauksella</b> (Procountor / Netvisor / Fennoa) — vientiloki + uusintalähetys</td><td>Kuitattu tunti → laskutettava tunti lyhyempi polku; vähemmän puuttuvia ja myöhäisiä.</td></tr>
+    <tr><td><b>Käyttäjähallinta, roolit (Johto / Työnjohto / Työntekijä), sähköposti, raportit, audit-loki</b></td><td>Oikeat ihmiset näkevät oikeat asiat.</td></tr>
+  </table>
+
+  <h3>Asennustavat (Asennusvelho)</h3>
+  <table>
+    <tr><th>Tapa</th><th>Mihin</th><th>Soveltuu kun</th><th>Kustannus</th></tr>
+    <tr><td><b>1) Paikallinen</b></td><td>oma kone, oletusportti 8088</td><td>yhden koneen / pienen tiimin WiFi-käyttö</td><td><b>0 €</b></td></tr>
+    <tr><td><b>2) Microsoft Azure</b></td><td>oma Azure-tili (App Service B1/F1/P1v2)</td><td>koko organisaation Internet- ja mobiilikäyttö</td><td>valinnainen Azure B1 ~57 €/kk <span class="arvio">[ARVIO]</span></td></tr>
+    <tr><td><b>3) Yrityspalvelin</b></td><td>oma Windows-palvelin (WinRM, portti 8080)</td><td>sisäverkon monikäyttö, data omassa hallinnassa</td><td><b>0 €</b> (palvelin jo olemassa)</td></tr>
+  </table>
+
+  <div class="laatikko"><b>Tietoturva:</b> kirjautumislukitos (5×15 min), demotunnukset pois tuotannosta, VAPID-avainpari luodaan
+  jokaiselle asennukselle omakseen, turvaotsikot (CSP), palautustokenit vain SHA-256-tiivisteenä, SMTP-lähetys pakotetusti
+  STARTTLS-suojattuna. Varmuuskopiot omalle koneelle; poistossa tietokanta varmuuskopioidaan työpöydälle; päivitykset
+  säilyttävät datan ja asetukset.</div>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>3 / 9</span></div>
+</div>
+<!-- VERTAILU -->
+<div class="page">
+  <h1>2. Vertailu: isäntäjärjestelmät ja Huoltokello</h1>
+  <p>Kolme erilaista roolia — eivät ole kilpailijoita: <b>Tampuuri</b> (talous, vuokrat, huolto- ja ylläpitodata),
+  <b>Granlund Manager</b> (kiinteistödata, strategia, capital planning, ESG), <b>Huoltokello</b> (työn täytäntöpano kentällä).</p>
+  <table>
+    <tr><th>Aihe</th><th>Tampuuri (Visma)</th><th>Granlund Manager</th><th>Huoltokello</th></tr>
+    <tr><td><b>Ydinarvo</b></td><td>kiinteistöjohtamisen kokonaisuus: vuokrat, asukasvalinta, verkkopalvelut, talous, huolto ja ylläpito — yli 50 moduulia</td><td>kiinteistön elinkaaren hallinta: huolto, capital plan­ning, ESG, energianhallinta, tarkastukset, raportointi</td><td>työnhallinta kentällä: vuosikello, kuittaus+QR, laskutus, raportit</td></tr>
+    <tr><td><b>Vuosikellonäkymä raahauksella</b></td><td class="ho">~ huoltosuunnitelmat kalenterimuodossa (riippuu moduulista)</td><td class="ho">~ huolto-/tarkastuskalenterit (moduulikohtainen)</td><td class="merkki">✓ ydinnakymä: kortit raahataan paikoilleen, prioriteettivärit, kiireellisyyssuodatus</td></tr>
+    <tr><td><b>QR-tarrojen massatulostus + skannaus suoraan tehtävälistaksi</b></td><td class="ho">~ kenttätyökalu / lisä (esim. TampuuriX)</td><td class="ho">~ kohteen QR-muodot riippuen konfiguraatiosta</td><td class="merkki">✓ valmiiksi: massatulostus Kohteet-sivulta, skannaus avaa kohteiden työnäytön</td></tr>
+    <tr><td><b>Offline-kirjaus ilman verkkoa</b></td><td class="ho">~ riippuu kenttäratkaisusta</td><td class="ho">~ riippuu kenttäratkaisusta</td><td class="merkki">✓ service worker + autosynkronointi (myös allekirjoitus)</td></tr>
+    <tr><td><b>PWA puhelimeen ilman sovelluskauppaa</b></td><td class="ho">~ soveltainen kenttätyökalu</td><td class="ho">~ soveltainen / selainkärki</td><td class="merkki">✓ "Lisää aloitusnäytölle" + apinäkymä + tumma tila</td></tr>
+    <tr><td><b>Web Push -ilmoitukset</b></td><td class="ei">– ei todettu</td><td class="ho">~ riippuu moduuleista</td><td class="merkki">✓ VAPID, asennuskohtainen avainpari</td></tr>
+    <tr><td><b>Asiakkaan allekirjoitus kuittaukseen</b></td><td class="ho">~ allekirjoituspalvelu asiakirjaprosessiin (lisäpalvelu)</td><td class="ho">~ riippuu toteutuksesta</td><td class="merkki">✓ kuittauksen allekirjoitus (myös offline)</td></tr>
+    <tr><td><b>Lisenssimaksu</b></td><td>tarjoushinta: moduulit + käyttäjät + kenttätyökalut + käyttöönotto</td><td>tarjoushinta: portfolio + moduulit + käyttäjät</td><td class="merkki"><b>0 €</b> — tarjotaan ilmainen lisä rinnalle</td></tr>
+    <tr><td><b>Käyttöönotto</b></td><td>projekti: viikoista kuukausiin + koulutus</td><td>projekti: viikoista kuukausiin + koulutus</td><td class="merkki">asennus ~ 1 h, opas 30–60 min, ei tietokannan muutoksia</td></tr>
+    <tr><td><b>Internet-/pilvivaatimus</b></td><td>pilvipohja (netti pakko)</td><td>pilvipohja (netti pakko)</td><td class="merkki">paikallinen asennus toimii ilman nettiä</td></tr>
+  </table>
+  <p><small>✓ = valmiiksi ohjelmassa &middot; ~ = osin tai vaatii moduulin/toteutuksen &middot; – = ei julkisesti todettu.
+  Tampuuri- ja Granlund Manager -arviot perustuvat toimittajien julkisiin tuotesivuihin ja moduulipohjaiseen rakenteeseen;
+  toiminnallisuus riippuu hankituistasi moduuleista ja konfiguraatiosta. Huoltokello <b>ei korvaa</b> Tampuurin talousmoduulia
+  eikä Granlund Managerin capital planningia — se täydentää niitä.</small></p>
+
+  <h3>Rinnakkaisarkkitehtuuri</h3>
+  <div class="flow">
+    <div class="box"><b>Tampuuri</b>talous, vuokrat, reskontra, huolto- ja ylläpitodata</div>
+    <div class="box"><b>Granlund Manager</b>kiinteistödata, energia, capital planning, ESG</div>
+    <div class="arrow">➤</div>
+    <div class="box" style="background:#fff7ed;border-color:#fdba74;"><b>🕰️ Huoltokello</b>vuosikello, tehtävät, QR-kuitit, allekirjoitukset, raportit</div>
+    <div class="arrow">➤</div>
+    <div class="box"><b>Kirjanpito</b>Procountor / Netvisor / Fennoa (vienti yhdellä klikkauksella)</div>
+  </div>
+  <p><b>Ei yhtään rajapintasopimusta vaadita:</b> Huoltokello toimii omana selainsovelluksenaan oman koneen / oman
+  palvelimen / oman Azure-tilin päällä. Data liikkuu ihmisten mukana: kenttä näkee tehtävät Huoltokollossa, isäntäjärjestelmät
+  hoitavat talous- ja strategiadatan, kirjanpitovienit kulkevat suoraan. Tarra linkitetään Huoltokello-osoitteeseen —
+  työn aloitus on skannaus, ei usean järjestelmän kirjautumista.</p>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>4 / 9</span></div>
+</div>
+<!-- LISSENSIMAKSUTUTKIMUS -->
+<div class="page">
+  <h1>3. Lisenssimaksututkimus: Tampuuri &amp; Granlund Manager</h1>
+  <div class="orange-box">
+    <b>Keskeinen havainto:</b> kumpikaan toimittaja ei julkaise hinnastoa — molemmat myyvät <b>tarjousperusteisesti</b>.
+    Tampuuri (Visma Sirius Oy): "Pyydä tarjous" (tampuuri.fi). Granlund Manager: "Pricing — Get in touch / Request a
+    quote" (granlundmanager.com). Alla siksi <span class="arvio">tyypilliset markkinahaarukat [ARVIO]</span> suuntautumista
+    varten — pyytäkää viralliset tarjoukset varmuuden vuoksi.
+  </div>
+
+  <h3>Mihin Tampuurin hintaan vaikuttaa</h3>
+  <ul>
+    <li>Kokonaisohjelmisto yli 50 tuotemoduulilla: asukasvalinta ja vuokraus, verkkopalvelut (Eteinen), talous, huolto ja ylläpito, raportointi, Tampuuri API, viestinnän ratkaisut, kenttätyökalut (TampuuriX)</li>
+    <li>Hinnan tekijät: valitut moduulit, käyttäjämäärä, kiinteistö-/huoneistomäärä, kenttätyökalulisenssit, käyttöönotto- ja koulutuspalvelut, jatkotuki</li>
+    <li><span class="arvio">[ARVIO]</span> Tyypillinen haarukka: peruskokonaisuus <b>~400–800 €/kk</b>, kenttätyökalulisenssit
+    <b>~20–35 €/kk/kenttäkäyttäjä</b>, käyttöönotto+koulutus <b>~3 000–8 000 €</b> kertamaksuna
+    &rarr; vuodessa monikäyttöiselle tiimille <b>n. 8 000–17 000 €</b></li>
+  </ul>
+
+  <h3>Mihin Granlund Managerin hintaan vaikuttaa</h3>
+  <ul>
+    <li>Moduulit: Maintenance, Capital Planning, ESG, energianhallinta, tarkastukset, raportointi, integraatiot (esim. KONE, Smartvatten), kumppanikosysteemi</li>
+    <li>Hinnan tekijät: portfolion koko (kiinteistöt/m²), ostetut moduulit, käyttäjä- ja organisaatiorakenne, toteutuskonsultointi</li>
+    <li><span class="arvio">[ARVIO]</span> Tyypillinen haarukka: <b>~1–3 €/m²/v</b> tai keskikokoisille kokonaisuuksille <b>~15 000–40 000 €/v</b> — kasvaa moduulien myötä</li>
+  </ul>
+
+  <h3>Huoltokello — ilmainen lisä</h3>
+  <table>
+    <tr><th>Asennustapa</th><th>Vuosimaksu</th><th>Sisältää / huomio</th></tr>
+    <tr><td><b>Paikallinen</b> (oma kone)</td><td><b>0 €</b></td><td>kaikki ominaisuudet, monikäyttö samassa WiFi-verkossa, ei nettiä</td></tr>
+    <tr><td><b>Yrityksen oma palvelin</b></td><td><b>0 €</b></td><td>sisäverkkomonikäyttö, data omassa hallinnassa</td></tr>
+    <tr><td><b>Oma Azure-tili</b> (valinnainen)</td><td><b>~660 €/v</b> <span class="arvio">[ARVIO]</span></td><td>Azure App Service B1, HTTPS + HTTP/2, koko organisaatio mistä vain</td></tr>
+    <tr><td class="merkki"><b>Huoltokellon lisenssi</b></td><td class="merkki"><b>0 €</b></td><td>kaikille käyttäjille; ei lisämaksua per käyttäjä / kiinteistö / moduuli</td></tr>
+  </table>
+
+  <div class="laatikko">
+    <b>Lähdeviitteet (10/2026):</b> tampuuri.fi (tuotesivut, hinnoittelu vain tarjouksena) · granlundmanager.com
+    (moduulit + Pricing: hinta vain tarjouksena) · Azure App Service -hintaluokat. Kaikki €-luvut ovat
+    <span class="arvio">merkittyjä markkinahaarukoita tai eksplisiittisiä oletuksia</span> — viralliset hinnat toimittajien tarjouksista.
+  </div>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>5 / 9</span></div>
+</div>
+<!-- SÄÄSTÖLASKELMA -->
+<div class="page">
+  <h1>4. Vuosisäästölaskelma (malliasiakas)</h1>
+  <div class="laatikko">
+    <b>Lähtöoletukset [OLETE]:</b> 12 kenttätyöntekijää + 2 esimiestä · 250 kohdetta · kenttätyötä yhteensä
+    <b>20 400 h/v</b> (12 × 1 700 h) · myyntikelpoista aikaa <b>60 %</b> = 12 240 h/v ·
+    työtunnin kustannus (palkat + sivukulut) <b>45 €/h</b> · käyttöönotto: paikallinen/palvelin <b>0 €</b>, Azure <b>660 €/v</b>.
+  </div>
+  <table>
+    <tr><th>Säästökohde ja mekanismi</th><th>Miten lasketaan</th><th>Varovainen</th><th>Tyypillinen</th><th>Optimistinen</th></tr>
+    <tr>
+      <td><b>1. Kenttätyön tuottavuus</b> — QR-kuittaus suoraan tehtävälistaan, offline-kirjaus, push-ilmoitukset, ei paperilistoja</td>
+      <td>tuottavaan aikaan parannus 2,5 % / 5 % / 9 % &rarr; 306 / 612 / 1 102 h lisämyyntiä × 45 €</td>
+      <td><b>13 800 €</b></td><td><b>27 500 €</b></td><td><b>49 500 €</b></td>
+    </tr>
+    <tr>
+      <td><b>2. Esimiestyön keveneminen</b> — vuosikello + reaaliaikaisuus + raportit korvaavat Excelin ja soittokierrokset</td>
+      <td>1 / 2 / 3 h/vko per esimies (2 hlö) &rarr; 90 / 180 / 270 h × 45 €</td>
+      <td><b>4 100 €</b></td><td><b>8 100 €</b></td><td><b>12 200 €</b></td>
+    </tr>
+    <tr>
+      <td><b>3. Uusintakäyntien väheneminen</b> — pakolliset kuittauskentät + liitteet + allekirjoitus poistavat epäselviä palautuksia</td>
+      <td>60 / 120 / 180 h uusintoja vähemmän × 45 €</td>
+      <td><b>2 700 €</b></td><td><b>5 400 €</b></td><td><b>8 100 €</b></td>
+    </tr>
+    <tr>
+      <td><b>4. IT- ja lisenssisäästöt</b> — ei kenttätyökalulisenssejä Huoltokolliosta, ei rajapintaprojektia, ei uutta hankintaprosessia</td>
+      <td>vältetyt lisä- ja projektkulut (arvio)</td>
+      <td><b>1 000 €</b></td><td><b>4 000 €</b></td><td><b>7 000 €</b></td>
+    </tr>
+    <tr>
+      <td><b>5. Laskutusreikien kiinnijääminen</b> — kuittausdata on täydellisempi, joten tehdyt tunnit päätyvät laskuun</td>
+      <td>myyntikelpoisesta ajasta 1 % / 2 % / 3 % &rarr; 122 / 245 / 367 h × 45 €</td>
+      <td><b>5 500 €</b></td><td><b>11 000 €</b></td><td><b>16 500 €</b></td>
+    </tr>
+    <tr>
+      <td><b>6. Pilvikustannus</b> (valinnainen, vain Azure-tilassa)</td>
+      <td>Azure App Service B1</td>
+      <td>−660 €</td><td>−660 €</td><td>−660 €</td>
+    </tr>
+    <tr style="background:#f0fdf4;">
+      <td colspan="2"><b>YHTEENSÄ / vuosi</b></td>
+      <td class="merkki"><b>n. 26 400 €</b></td>
+      <td class="merkki"><b>n. 55 300 €</b></td>
+      <td class="merkki"><b>n. 92 600 €</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>Vapautuvat tunnit myyntiin / vuosi</b> (rivit 1–5)</td>
+      <td><b>578 h</b></td>
+      <td><b>1 157 h</b> <small>(≈ 0,7 työvuotta)</small></td>
+      <td><b>1 919 h</b></td>
+    </tr>
+  </table>
+
+  <h3>Herkkyyssanalyysi</h3>
+  <p>Tulos riippuu eniten <b>tuntihinnasta</b> ja <b>kuormastasi</b>. Tuntihinnan haarukassa <b>38–55 €/h</b> tyypillinen
+  säästö malliasiakkaalle: <b>n. 44 000 – 67 000 €/v</b>. Omille luvuilleen: kerro huoltomäärä ja tuntihinta —
+  sama kaava, samat oletukset, yrityksellesi räätälöitynä.</p>
+  <div class="green-box">
+    <b>Miksi nämä ovat realistisia:</b> parannusta tarvitaan vain 2–5 % — yhtä työntekijää vastaava 10–15 min/päivä.
+    Paperilista, kaksinkertainen kirjaustyö, "kysy isännältä mitä tehdä" ja unohdetut tunnit ovat yleisiä —
+    Huoltokello poistaa ne koneellisesti. <b>Emme myy järjestelmänvaihtoa: isäntäjärjestelmäsi jää</b> — säästö syntyy
+    rinnalla kytkeytyvänä, 0 euron lisällä.
+  </div>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>6 / 9</span></div>
+</div>
+<!-- TALOUSENNUSTE -->
+<div class="page">
+  <h1>5. Talousennuste — 3 vuotta (tyypillinen skenaario)</h1>
+  <p>Ramp-up-ajattelu: v. 1 osa tiimiä mukana (60 % vaikutuksesta), v. 2 lähes kaikki (90 %), v. 3 täysi (100 %).</p>
+  <table>
+    <tr><th>Vuosi</th><th>Mikä muuttuu</th><th>Säästö</th><th>Kumulatiivinen</th></tr>
+    <tr><td><b>Vuosi 1</b></td><td>käyttöönotto + kuittaustapa kentälle (~60 % vaikutus)</td><td><b>n. 33 200 €</b></td><td><b>33 200 €</b></td></tr>
+    <tr><td><b>Vuosi 2</b></td><td>täysi käyttö + laskutusreikien kiinnijääminen (90 %)</td><td><b>n. 49 800 €</b></td><td><b>83 000 €</b></td></tr>
+    <tr><td><b>Vuosi 3</b></td><td>täysi käyttö (100 %)</td><td><b>n. 55 300 €</b></td><td><b>138 300 €</b></td></tr>
+  </table>
+  <div style="margin: 8px 0 0 0;">
+    <div style="display:flex;align-items:center;gap:8px;"><span style="width:70px;font-size:11px;">Vuosi 1</span><div class="palkki" style="flex:1;"><i style="width:60%;"></i></div><span style="width:90px;font-size:11px;">33 200 €</span></div>
+    <div style="display:flex;align-items:center;gap:8px;"><span style="width:70px;font-size:11px;">Vuosi 2</span><div class="palkki" style="flex:1;"><i style="width:90%;"></i></div><span style="width:90px;font-size:11px;">49 800 €</span></div>
+    <div style="display:flex;align-items:center;gap:8px;"><span style="width:70px;font-size:11px;">Vuosi 3</span><div class="palkki" style="flex:1;"><i style="width:100%;"></i></div><span style="width:90px;font-size:11px;">55 300 €</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><span style="width:70px;font-size:11px;font-weight:700;">3 v yht.</span><div class="palkki" style="flex:1;"><i style="width:100%;background:linear-gradient(90deg,#ea580c,#f97316);"></i></div><span style="width:90px;font-size:11px;font-weight:700;">138 300 €</span></div>
+  </div>
+
+  <div class="kpi" style="margin-top:14px;">
+    <div><b>0 €</b><span>alkuinvestointi (paikallinen/palvelin)</span></div>
+    <div><b>~1 kk</b><span>takaisinmaksuaika (Azure-vaihtoehdossa ~1,5 kk)</span></div>
+    <div><b>84×</b><span>ROI Azure-vaihtoehdossa (55 300 € / 660 €)</span></div>
+    <div><b>44–67 k</b><span>tuntihinta-analyysin haarukka €/v</span></div>
+  </div>
+
+  <div class="orange-box">
+    <b>Ennustetyön muistilista:</b> ennusteet ovat <b>bruttotasoja ennen veroja</b> ja perustuvat malliasiakkaaseen
+    (12 + 2 hlö, 250 kohdetta). Tarkat luvut saat teidän luvuillanne: kenttätyöntekijöiden määrä × tuntihinta ×
+    kuormaprosentti. Laskelma on avoin: jokainen oletus on merkitty.
+  </div>
+
+  <h3>Asiakkaan vaihtoehdot samaan tarpeeseen</h3>
+  <table>
+    <tr><th>Vaihtoehto</th><th>Käyttöönotto</th><th>Kustannus/vuosi</th><th>Säästö/luotettavuus</th></tr>
+    <tr><td><b>A)</b> Isäntäjärjestelmän lisämoduulit / lisäkäyttäjät vastaavaan tarpeeseen</td><td>projekti ~1–3 kk</td><td><span class="arvio">n. 3 000–15 000 € [ARVIO]</span></td><td>hyöty jää pienemmäksi — isäntä ei muutu kentän työnäytöksi</td></tr>
+    <tr><td><b>B)</b> Uusi raskas kenttäjärjestelmä</td><td>projekti 3–12 kk</td><td><span class="arvio">tarjouskohtainen [ARVIO]</span></td><td>riskeinä: integraatio, koulutus, hankinta</td></tr>
+    <tr class="merkki"><td><b>C) Huoltokello ilmaisena lisänä</b></td><td><b>~1 h</b></td><td><b>0 €</b> (Azure: 660 €)</td><td><b>26 400 – 92 600 €/v</b></td></tr>
+  </table>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>7 / 9</span></div>
+</div>
+<!-- HYÖTYLISTA -->
+<div class="page">
+  <h1>6. Kaikki hyödyt — täydellinen listaus</h1>
+  <table>
+    <tr><th style="width:24%;">Alue</th><th>Hyödyt ominaisuuskohtaisesti (v2.7.3)</th></tr>
+    <tr><td><b>A. Raha &amp; tuotto</b></td>
+      <td>1. Tuottavuushyöty kentällä (työ alkaa 10 sekunnissa skannaamalla, ei paperia) · 2. Esimiesajan keveneminen ·
+      3. Uusintakäyntien väheneminen · 4. Laskutusreikien kiinnijääminen (kuitatut tunnit → lasku) · 5. Ei lisäkäyttäjälisenssejä ·
+      6. Ei rajapinta- eikä integraatioprojektia · 7. Vähemmän paperin ja tulostuksen kuluja · 8. Nopea kassavirta: kuittausdata kulkee viennin kanssa</td></tr>
+    <tr><td><b>B. Työn laatu &amp; asiakaskokemus</b></td>
+      <td>9. Asiakkaan vastaanoton allekirjoitus (myös offline-kirjauksessa) · 10. QR-kuittaus kertoo mitä tehdä —
+      havainto- ja poikkeamakentät pakotetulle tarkastukselle · 11. Tarkempi tehtävän asiasisältö ·
+      12. Raportit asiakkaan suuntaan · 13. Dokumentointi riitojen ja vastuujakojen tukemiseen</td></tr>
+    <tr><td><b>C. Toiminnan selkeys</b></td>
+      <td>14. Vuosikello — koko vuoden toimenpiteet yhdellä näkymällä · 15. Prioriteettivärit (vihreä/sininen/punainen) ja kiireellisyys ·
+      16. Tehtäväkorttien raahaus ja suodatus · 17. Reaaliaikainen tilannekuva kaikille (SignalR) ·
+      18. Roolijako: Johto / Työnjohto / Työntekijä · 19. Audit-loki johdolle</td></tr>
+    <tr><td><b>D. Henkilöstö</b></td>
+      <td>20. Selkeät tehtävät — vähemmän "kysy isännältä" -hetkiä · 21. Puhelin työkaluna (PWA, tumma tila, isommat painikkeet, ei sovelluskauppaa) ·
+      22. Web Push: uudet tehtävät heti · 23. Offline: työ ei pysähdy verkon takia · 24. Motivaatio: työntekijä näkee oman jälkensä ·
+      25. Rekrytoinnin ja pysyvyyden vahvistaja</td></tr>
+    <tr><td><b>E. IT &amp; tekninen riski</b></td>
+      <td>26. Ei muutoksia Tampuuri- eikä Granlund-tietokantoihin · 27. Ei .NET-latauksia — itsenäinen sovellus ·
+      28. Paikallinen asennus toimii ilman internettiä · 29. Varmuuskopiot omassa hallinnassa (30 uusinta varmuuskopiota) ·
+      30. Tietoturva: kirjautumislukitos, CSP-otsikot, asennuskohtainen VAPID-avainpari, SHA-256-tokenit, STARTTLS-pakotus ·
+      31. Helppo poisto ja turvallinen päivitys (data säilyy)</td></tr>
+    <tr><td><b>F. Isäntäjärjestelmien kanssa</b></td>
+      <td>32. Tampuurin talous- ja vuokrarooli säilyy · 33. Granlund Managerin strategia-/capital planning -rooli säilyy ·
+      34. Uusi kerros työn täytäntöpanoon, jota ei ole valmiina muissa · 35. Ei hankintapaineita: 0 €, ei moduulisidonnaisuutta ·
+      36. Suomenkielisyys ja 30–60 min käyttöönotto-oppaalla</td></tr>
+  </table>
+  <div class="laatikko">
+    <b>Rehellinen arvio siitä, mitä Huoltokello EI tee (jotta lupaus pitää):</b> ei korvaa Tampuurin talous- eikä
+    vuokramoduulia, ei Granlund Managerin capital planningia, energianhallintaa eikä ESG-raportointia, eikä anna
+    laajaa kiinteistödatastrategiaa. Se on <b>työn täytäntöpanekello</b> — juuri se tyhjä kohta, joka yleensä jää
+    Excelille ja paperille.
+  </div>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com</span><span>8 / 9</span></div>
+</div>
+<!-- KÄYTTÖÖNOTTO + LÄHTEET -->
+<div class="page">
+  <h1>7. Käyttöönottotie ja yhteydenotto</h1>
+  <table>
+    <tr><th>Vaihe</th><th>Miten</th><th>Kesto</th></tr>
+    <tr><td><b>1. Asennuspaketin saaminen</b></td><td>lähettämme paketin (Asenna.cmd + oppaat) — sähköposti jani.malmberg@gmail.com</td><td>välittömästi</td></tr>
+    <tr><td><b>2. Asennusvelho</b></td><td>kaksoisnapsautus: valitut tapa (paikallinen / Azure / yrityspalvelin), portti, johtotili, lupa-askel</td><td>~1 t</td></tr>
+    <tr><td><b>3. Perusdatan syöttö</b></td><td>käyttöönottopassa: tehtävätyypit → ryhmät → käyttäjät → asiakkaat/sopimukset → kohteet + QR-tarrojen massatulostus</td><td>30–60 min</td></tr>
+    <tr><td><b>4. Vuosikellon täyttö</b></td><td>talon perustoiminnot tehtäväkorteiksi (lumen poisto, viheralueiden hoito, lämmityskatselmus, savuhälytinten tarkistus...)</td><td>1–2 t</td></tr>
+    <tr><td><b>5. Puhelinkäyttö</b></td><td>selaimen "Lisää aloitusnäytölle" — QR-skannaus, kuittaus, offline — ei sovelluskauppaa</td><td>~5 min/puhelin</td></tr>
+    <tr><td><b>6. Ensimmäinen raportti johdolle</b></td><td>kuitattujen tehtävien yhteenveto ja laskutusviennin koeajo (Procountor/Netvisor/Fennoa)</td><td>10 min</td></tr>
+  </table>
+  <p><b>Isäntäjärjestelmät säilyvät:</b> Tampuuri ja/tai Granlund Manager jatkavat samankaltaisesti kuin aiemmin —
+  Huoltokello on kolmas, erillinen selainnäkymä, jonka poisto on yhtä helppo kuin asennus (Sovellukset-lista →
+  graafinen poisto; tietokanta varmuuskopioidaan työpöydälle).</p>
+
+  <div class="green-box" style="text-align:center;padding:14px;">
+    <div style="font-size:17px;"><b>Seuraava askel — 30 minuutin demonstraatio</b></div>
+    <div style="margin-top:4px;">Käymme vuosikellon, QR-kuitauksen puhelimella ja raportit sinun ympäristössäsi:<br>
+    <b>sähköposti jani.malmberg@gmail.com</b> · huoltokello v2.7.3 · Huoltokello-Multiasennus</div>
+    <div class="nappi">Varaa demo → jani.malmberg@gmail.com</div>
+  </div>
+
+  <h3>Lähteet, oletukset ja huomautukset</h3>
+  <ul style="font-size:10.5px;">
+    <li><b>tampuuri.fi</b> (Visma Sirius Oy): tuote- ja moduulitiedot (yli 50 moduulia: asukasvalinta, verkkopalvelut, talous, huolto ja ylläpito, raportointi, API, kenttätyökalut); hinnoittelu vain tarjouksella ("Pyydä tarjous"). Laskutushaarukat tässä esityksessä ovat merkittyjä [ARVIO]-arvioita.</li>
+    <li><b>granlundmanager.com</b> (Granlund Oy): moduulit Maintenance / Capital Planning / ESG / Reporting / Inspections / integraatiot; Pricing-sivu: hinta vain tarjouksella ("Get in touch", "Request a quote"). Hintahaarukat ovat [ARVIO]-arvioita.</li>
+    <li><b>Azure App Service</b> B1: noin 55–60 €/kk — valinnainen pilvivalinta [ARVIO].</li>
+    <li><b>Säästölaskelman oletukset [OLETE]:</b> 12 kenttätyöntekijää + 2 esimiestä; 20 400 kenttätyötunti/v; myyntikelpoinen 60 %; 45 €/h; vaikutusprosentit: tuottavuus 2,5–9 %, esimies 1–3 h/vko, uusinnat 60–180 h, laskutusreikä 1–3 %. Laskelmat pyöristetty. Muutetun oletuksen vaikutukset lasketaan samalla kaavalla.</li>
+    <li>Tampuuri ja Granlund Manager ovat omistajiensa tavaramerkkejä; vertailu on suuntautumista varten eikä syrjivä — niiden toiminnallisuus riippuu hankituista moduuleista.</li>
+  </ul>
+  <div class="sivu"><span>Huoltokello — ilmainen lisä &middot; jani.malmberg@gmail.com &middot; v2.7.3 (30.9.2026)</span><span>9 / 9</span></div>
+</div>
+</body>
+</html>

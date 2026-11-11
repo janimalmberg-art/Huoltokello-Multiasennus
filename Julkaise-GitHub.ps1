@@ -38,6 +38,7 @@ param(
     [string] $Nakyvyys = 'julkinen',
     [string] $Kuvaus   = 'Huoltokello - kiinteistonhuollon taktinen tyonhallinta. Moniasennuspaketti: paikallinen asennus, Microsoft Azure tai yrityksen Windows-palvelin.',
     [string] $Haara    = 'main',
+    [string] $Viesti   = 'Paivitys README-dokumentaatioon',
     [switch] $EiReleasea
 )
 
@@ -59,31 +60,27 @@ function Get-GitExe {
 function Get-GitHubCredential {
     # Hakee koneen tallennetun GitHub-tunnuksen (Git Credential Manager).
     # TOKEN EI TULOSTU eika tallennu lokitiedostoon mihinkaan.
-    $stdinTxt = "protocol=https`nhost=github.com`n`n"
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = 'git'
-    $psi.Arguments = 'credential fill'
-    $psi.RedirectStandardInput  = $true
-    $psi.RedirectStandardOutput = $true
-    $psi.RedirectStandardError  = $true
-    $psi.UseShellExecute = $false
-    $psi.CreateNoWindow  = $true
-    $p = New-Object System.Diagnostics.Process
-    $p.StartInfo = $psi
-    $null = $p.Start()
-    $null = $p.StandardInput.Write($stdinTxt)
-    $p.StandardInput.Close()
-    $taskOut = $p.StandardOutput.ReadToEndAsync()
-    if (-not $taskOut.Wait(30000)) {
-        try { $p.Kill() } catch {}
-        throw 'Ei tallennettua GitHub-tunnusta (git credential fill ei valmistunut 30 sekunnissa).'
+    # HUOM: suora PS-putki ("... | git credential fill") menetti syotteensa
+    # joissain ei-interaktiivisissa ajoissa - git sai tyhjan ensimmaisen
+    # rivin ja valitti "missing protocol field". Tiedostoredirektio
+    # (cmd /c "git credential fill < kysely.txt") toimii luotettavasti
+    # myos silloin. Kyselytiedostossa EI OLE salaisuutta, ja se poistetaan
+    # heti; token kulkee vain muistissa eika paady mihinkaan tiedostoon.
+    $qFile = Join-Path $env:TEMP ('hk-cred-q-' + [IO.Path]::GetRandomFileName() + '.txt')
+    $pass = $null; $user = $null
+    try {
+        $q = "protocol=https" + [Environment]::NewLine +
+             "host=github.com" + [Environment]::NewLine +
+             [Environment]::NewLine
+        Set-Content -LiteralPath $qFile -Value $q -Encoding ASCII
+        $rows = (cmd /c "git credential fill < ""$qFile""" 2>$null) | ForEach-Object { ($_ -replace "\r", '') }
+        $pass = $rows | Where-Object { $_ -like 'password=*' } | ForEach-Object { $_.Substring(9) } | Select-Object -First 1
+        $user = $rows | Where-Object { $_ -like 'username=*' } | ForEach-Object { $_.Substring(9) } | Select-Object -First 1
+    } finally {
+        Remove-Item -LiteralPath $qFile -Force -ErrorAction SilentlyContinue
     }
-    $out = $taskOut.Result
-    $rows = $out -split "`n" | ForEach-Object { $_ -replace "`r", '' }
-    $pass = $rows | Where-Object { $_ -like 'password=*' } | ForEach-Object { $_.Substring(9) }
-    $user = $rows | Where-Object { $_ -like 'username=*' } | ForEach-Object { $_.Substring(9) }
-    if ([string]::IsNullOrEmpty($pass)) {
-        throw 'GitHub-tunnuksessa ei ole salasanaa (tokenia).'
+    if ([string]::IsNullOrEmpty(($pass | Out-String))) {
+        throw 'Ei tallennettua GitHub-tunnusta (git credential fill ei palauttanut tokenia). Kirjaudu: git credential-manager github login'
     }
     [pscustomobject]@{ Token = $pass; Username = $user }
 }
@@ -212,7 +209,7 @@ if ([string]::IsNullOrWhiteSpace(($hasHead | Out-String))) {
     git commit -m 'Huoltokello-Multiasennus v2.7.3: asennuspaketti, velho, tyokalut, dokumentaatio (README + docs)' | Out-Null
     Write-Host 'Ensimmoinen commit tehty.' -ForegroundColor Green
 } elseif (git status --porcelain) {
-    git commit -m 'Paivitys README-dokumentaatioon' | Out-Null
+    git commit -m $Viesti | Out-Null
     Write-Host 'Muutokset commitoitu.' -ForegroundColor Green
 } else {
     Write-Host 'Ei muutoksia commitoitavana.' -ForegroundColor DarkGray
@@ -292,7 +289,7 @@ if (-not $EiReleasea) {
     try { Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue } catch { }
     $root = Join-Path $stage 'Huoltokello-Multiasennus'
     New-Item -ItemType Directory -Path $root -Force | Out-Null
-    robocopy $PSScriptRoot $root /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD ".git" ".idea" ".vscode" /XF "_julkaisu*.log" "Huoltokello-Multiasennus*.zip" ".gitignore" ".gitattributes" | Out-Null
+    robocopy $PSScriptRoot $root /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD ".git" ".idea" ".vscode" "__pycache__" /XF "_julkaisu*.log" "Huoltokello-Multiasennus*.zip" ".gitignore" ".gitattributes" | Out-Null
     if ($LASTEXITCODE -ge 8) {
         throw "Pakkaus epaonnistui (robocopy-koodi $LASTEXITCODE)."
     }

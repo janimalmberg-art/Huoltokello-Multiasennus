@@ -140,7 +140,7 @@ Vinkki: "Vaihda kuvake"-ikkunasta voi valita muunnoskuvan myös Microsoftin omis
 - [Tyokalut.md](Tyokalut.md) — kaikki ylläpitotyökalut tarkemmin
 - `Ohjeet/Kayttoonotto-Opas.html` — yksityiskohtainen käyttöönottopassi
 - Asennuskansion `Asennus-yhteenveto.txt` — asennuksen tiedot (osoite, tili, ajat)
-- Huoltokello — kiinteistonhuollon taktinen työhallinta; valmistaja: Huoltokello (dev@huolto.fi)
+- Huoltokello — kiinteistonhuollon taktinen työhallinta; valmistaja: Huoltokello (jani.malmberg@gmail.com)
 
 ## 5. Ensimmäinen käyttö ja käyttöönottö
 

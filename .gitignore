@@ -10,6 +10,7 @@ desktop.ini
 ~$*
 
 # Kehitysympäristöt ja varmuuskopiot
+__pycache__/
 .vscode/
 .idea/
 .gitattributes.bak

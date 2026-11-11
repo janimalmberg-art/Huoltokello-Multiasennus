@@ -17,4 +17,4 @@ rajoittuvat valmistajan myöntämään käyttöoikeuteen (lisenssiehtoihin).
   vastuu käyttäjän/käyttöyksikön omalla; säilytä tunnukset ja
   varmuuskopiot luottavaisesti.
 
-Yhteydenotot: dev@huolto.fi (Huoltokello)
+Yhteydenotot: jani.malmberg@gmail.com (Huoltokello)
