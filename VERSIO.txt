@@ -1,5 +1,36 @@
 HUOLTOKELLO - VERSIOLOKI
 ========================
+v2.7.4 (16.11.2026)
+-------------------
+- TIETOTURVAKATSELMOINTI (asennuspaketti + Tyokalut, sovellus ei muuttunut):
+  - Salasanasääntö: vähintään 12 merkkiä (aiemmin 8), suuraakkonen ja numero —
+    velho (paikallinen/Azure/palvelin), Tyokalut\Luo-Kayttaja ja Test-HkPassword.
+  - Uudet liput: -AdminPasswordSecure (SecureString) ja HKA_ADMIN_PASSWORD-
+    ympäristömuuttuja; suora -AdminPassword toimii yhä, mutta varoittaa.
+  - Salaisuustiedostojen ACL SID-pohjaisesti vain ylläpito/SYSTEM:lle
+    (Protect-HkSecretFile): palvelimen appsettings.Production.json sekä
+    first-admin.json (velho, Luo-YllapitajaTili, palvelinajo).
+  - Zip-slip-esto: Expand-HkZipSafe + Assert-HkSafeInstallDir — velhon purut,
+    Paivita.ps1, Palauta-Varmuuskopio.ps1 ja palvelimen purku turvallisia.
+  - Poistotyökalut: varmuuskopion epäonnistuminen KESKEYTTÄÄ asennuskansion
+    poiston, jotta tietokanta ja liitteet eivät katoa.
+  - Azure: Azure CLI:n MSI-asennuspaketin Authenticode-allekirjoitus tarkistetaan
+    (Microsoft Corporation) ennen asennusta.
+  - TrustedHosts-korjauksen välitiedosto: satunnainen GUID-nimi + try/finally-
+    siivous (ei enää ennustettavaa nimeä jäännöstiedostona).
+  - Tyokalut\asenna-sahkoposti.py: TLS-varmenne tarkistetaan AINA (cPanel UAPI:
+    2083/2087 sekä SMTP-testilähetys) — tarkistamatonta yhteyttä ei avata.
+  - Ohjeet päivitetty (Asennusohjeet, Lueminut, docs) suojattuun salasanalippuun.
+  - Azure-huolto (huoltokello-2177): huomattu, että app.zip on Windows-R2R-julkaisu
+    (Microsoft.AspNetCore.*/System.* R2R-kuvina) eikä siksi käynnisty Azure Linux-
+    kontissa (exit 131 -> BadImageFormat). Paikalla kunnostettu: _linux-patch.zip
+    (framework-dependent runtimeconfig + linux-x64 libe_sqlite3.natiivi + deps.json-
+    linux-x64-rivi + juuri-e_sqlite3.dll korvattu ELF:llä) ja sovellusasetus
+    COMPlus_ReadyToRun=0. Väliaikainen korjaus — oikea linux-x64- tai framework-
+    dependent-julkaisu tehtävä ennen seuraavaa Azure-julkaisua.
+- Velhon versionumero 2.7.3 -> 2.7.4.
+
+
 
 v2.7.3 (30.9.2026)
 ------------------

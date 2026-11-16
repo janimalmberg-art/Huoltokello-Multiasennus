@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| Ohjelmaversio | **v2.7.3** (30.9.2026) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
+| Ohjelmaversio | **v2.7.4** (16.11.2026) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
 | Alusta | Windows 10/11 (64-bittinen), PowerShell 5.1 (pakko ei ole lisäasennus) |
 | Teknologia | itsenäinen (self-contained) .NET-sovellus — **.NET-latauksia EI tarvita** |
 | Asennuksen alkutila | täysin tyhjä (ei demodataa) — ensimmäinen Johto-tili luodaan asennuksessa |
