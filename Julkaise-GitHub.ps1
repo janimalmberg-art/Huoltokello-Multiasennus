@@ -289,7 +289,8 @@ if (-not $EiReleasea) {
     try { Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue } catch { }
     $root = Join-Path $stage 'Huoltokello-Multiasennus'
     New-Item -ItemType Directory -Path $root -Force | Out-Null
-    robocopy $PSScriptRoot $root /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD ".git" ".idea" ".vscode" "__pycache__" /XF "_julkaisu*.log" "Huoltokello-Multiasennus*.zip" ".gitignore" ".gitattributes" | Out-Null
+    # v2.8.1: _tyo-tyokansio, tuplakopiot ja ajotarkistukset pois jaettavasta paketista
+    robocopy $PSScriptRoot $root /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD ".git" ".idea" ".vscode" "__pycache__" "_tyo" /XF "_julkaisu*.log" "Julkaise*.log" "_julkaise*.cmd" "_app-fixed.zip" "_tarkista-azure-tila.ps1" "_logtail.txt" "Huoltokello-Multiasennus*.zip" ".gitignore" ".gitattributes" | Out-Null
     if ($LASTEXITCODE -ge 8) {
         throw "Pakkaus epaonnistui (robocopy-koodi $LASTEXITCODE)."
     }
