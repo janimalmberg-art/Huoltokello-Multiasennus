@@ -63,7 +63,7 @@ while ($true) {
     $role = switch ($roleSel) { '2' { 'Työnjohto' } '3' { 'Johto' } default { 'Työntekijä' } }
 
     while ($true) {
-        $pw = ConvertTo-PlainText (Read-Host "Salasana (min 8 merkkiä, suuraakkonen ja numero)" -AsSecureString)
+        $pw = ConvertTo-PlainText (Read-Host "Salasana (min 12 merkkiä, suuraakkonen ja numero)" -AsSecureString)
         $err = Test-HkPassword $pw
         if ($err) { Write-Host "  $err" -ForegroundColor Yellow; continue }
         break

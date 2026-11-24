@@ -62,11 +62,13 @@ Paikallinen:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Asenna-Huoltokello-Multa.ps1 `
   -Silent -Mode paikallinen -InstallDir "C:\Huoltokello" -Port 8088 `
-  -AdminName "Maija Meikäläinen" -AdminEmail "maija@firma.fi" -AdminPassword "Salasana1" `
+  -AdminName "Maija Meikäläinen" -AdminEmail "maija@firma.fi" -AdminPassword "Kello2026Huolto" `
   -HyvaksyLuvat
 ```
 
 Valinnaiset liput: `-AutoStart`, `-PhoneAccess`, `-NoShortcuts`, `-NoBrowser`.
+
+Salasana suojattuna: `-AdminPasswordSecure` (SecureString) tai ympäristömuuttuja `HKA_ADMIN_PASSWORD`. Salasanasääntö: vähintään **12 merkkiä**, suuraakkonen ja numero. Azure-asennuksessa velho tarkistaa Azure CLI:n MSI-asennuspaketin Authenticode-allekirjoituksen (Microsoft Corporation) ennen asennusta.
 
 Azure:
 

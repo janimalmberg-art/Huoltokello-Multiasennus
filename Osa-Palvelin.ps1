@@ -26,10 +26,15 @@ function Get-HkServerCredential {
 function Invoke-HkServerFixTrustedHosts {
     param([string]$ComputerName, [string]$ServerUser, $OnStep)
     & $OnStep 'server-yhteys' 'info' 'Lisataan palvelimeltalle koneen TrustedHosts-luetteloon (Windows kysyy yllapitoluvan)...'
-    $fix = Join-Path $env:TEMP 'huoltokello-th-fix.ps1'
-    $svc = ('param($h) $cur = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value; $list = @(); if ($cur -ne ''*'') { $list = @($cur -split "," | Where-Object { $_.Trim() }) }; $h2 = $h.Trim().ToLower(); if (($list | ForEach-Object { $_.Trim().ToLower() }) -notcontains $h2) { $list += $h; Set-Item WSMan:\localhost\Client\TrustedHosts -Value ($list -join ",") -Force }')
-    [IO.File]::WriteAllText($fix, $svc, (New-Object Text.UTF8Encoding $true))
-    $pr = Start-Process powershell.exe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $fix, $ComputerName) -Verb RunAs -Wait -PassThru
+    $fix = Join-Path $env:TEMP ('huoltokello-th-fix-' + [guid]::NewGuid().ToString('N').Substring(0, 8) + '.ps1')
+    try {
+        $svc = ('param($h) $cur = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value; $list = @(); if ($cur -ne ''*'') { $list = @($cur -split "," | Where-Object { $_.Trim() }) }; $h2 = $h.Trim().ToLower(); if (($list | ForEach-Object { $_.Trim().ToLower() }) -notcontains $h2) { $list += $h; Set-Item WSMan:\localhost\Client\TrustedHosts -Value ($list -join ",") -Force }')
+        [IO.File]::WriteAllText($fix, $svc, (New-Object Text.UTF8Encoding $true))
+        $pr = Start-Process powershell.exe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $fix, $ComputerName) -Verb RunAs -Wait -PassThru
+    } finally {
+        # v2.7.4: poista apuskripti aina (sisaltaa vain palvelinnimen, mutta ei jata roskia)
+        try { Remove-Item $fix -Force -ErrorAction SilentlyContinue } catch { }
+    }
     if ($pr.ExitCode -ne 0) {
         throw 'TrustedHosts-korjaus peruttiin tai epaonnistui (Windowsin lupa-kysely). Voit jatkaa myohemmin tai kayttaa toimialuetunnusta.'
     }
@@ -120,7 +125,26 @@ function Invoke-HkServerInstall {
     }
     $count = Invoke-HkServerCommand -ComputerName $hostName -Credential $cred -Script {
         param($p, $z)
-        Expand-Archive -Path $z -DestinationPath $p -Force -ErrorAction Stop
+        # v2.7.4: turvallinen purku palvelimella (zip slip -esto) ilman ulkoisia apuja
+        Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+        $dest = [IO.Path]::GetFullPath($p).TrimEnd('\')
+        $archive = [IO.Compression.ZipFile]::OpenRead($z)
+        try {
+            foreach ($e in $archive.Entries) {
+                if ([string]::IsNullOrEmpty($e.FullName)) { continue }
+                $rel = $e.FullName.Replace('/', '\')
+                if ($rel -match '^[A-Za-z]:' -or $rel.StartsWith('\', [StringComparison]::Ordinal)) { throw "Epailyttaeva polku paketissa: $($e.FullName)" }
+                $tgt = [IO.Path]::GetFullPath((Join-Path $dest $rel))
+                if (($tgt.TrimEnd('\') -ne $dest) -and (-not $tgt.StartsWith($dest + '\', [StringComparison]::OrdinalIgnoreCase))) { throw "Polku paketissa karkaa kohdekansiosta: $($e.FullName)" }
+                if ($e.FullName -match '[/\\]$') {
+                    if (-not (Test-Path -LiteralPath $tgt)) { New-Item -ItemType Directory -Force -Path $tgt | Out-Null }
+                } else {
+                    $td = Split-Path -Parent $tgt
+                    if ($td -and -not (Test-Path -LiteralPath $td)) { New-Item -ItemType Directory -Force -Path $td | Out-Null }
+                    [IO.Compression.ZipFileExtensions]::ExtractToFile($e, $tgt, $true)
+                }
+            }
+        } finally { $archive.Dispose() }
         Remove-Item $z -Force
         (Get-ChildItem -Path $p -Recurse -File | Measure-Object).Count
     } -Arguments @($path, 'C:\_hk-stage.zip'.Replace('C', $drive))
@@ -131,16 +155,19 @@ function Invoke-HkServerInstall {
     & $OnStep 'server-ajo' 'start' ''
     $null = Invoke-HkServerCommand -ComputerName $hostName -Credential $cred -Script {
         param($p)
-        $prod = Join-Path $p 'appsettings.Production.json'
-        if (Test-Path $prod) {
-            & icacls.exe @($prod, '/inheritance:r') | Out-Null
-            & icacls.exe @($prod, '/grant:r', '*S-1-5-32-544:F') | Out-Null
-            & icacls.exe @($prod, '/grant:r', '*S-1-5-18:F') | Out-Null
+        # v2.7.4: lukitse molemmat salaisuustiedostot (yksityisavain + ensimmaisen tilin salasana)
+        foreach ($secret in @('appsettings.Production.json', 'AppData\first-admin.json')) {
+            $f = Join-Path $p $secret
+            if (Test-Path $f) {
+                & icacls.exe @($f, '/inheritance:r') | Out-Null
+                & icacls.exe @($f, '/grant:r', '*S-1-5-32-544:F') | Out-Null
+                & icacls.exe @($f, '/grant:r', '*S-1-5-18:F') | Out-Null
+            }
         }
         New-Item -ItemType Directory -Force -Path (Join-Path $p 'AppData') | Out-Null
         'ok'
     } -Arguments @($path)
-    & $OnStep 'server-ajo' 'ok' 'appsettings.Production.json lukittu vain yllapidolle, tietokanta valmiina'
+    & $OnStep 'server-ajo' 'ok' 'appsettings.Production.json + AppData\first-admin.json lukittu vain yllapito/SYSTEM-tileille, tietokanta valmiina'
 
     # --- 5) palomuurisaanto (TCP-portti) ---
     & $OnStep 'server-palomuuri' 'start' ''

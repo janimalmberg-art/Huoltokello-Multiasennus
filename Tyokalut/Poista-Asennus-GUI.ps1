@@ -63,8 +63,12 @@ function Remove-HkData {
     if (-not $DeleteData) {
         & $Status 'Varmuuskopioidaan data tyopoydalle...'
         $dest = Join-Path ([Environment]::GetFolderPath('Desktop')) ("Huoltokello-data-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".zip")
-        try { Compress-Archive -Path $appData -DestinationPath $dest -Force; $script:BackupPath = $dest }
-        catch { $script:BackupPath = $null }
+        try { Compress-Archive -Path $appData -DestinationPath $dest -Force -ErrorAction Stop; $script:BackupPath = $dest }
+        catch {
+            # v2.7.4: varmuuskopion epaonnistuminen KESKEYTTAA poiston — data ei saa kadota
+            $script:BackupPath = $null
+            throw ("Varmuuskopiointi epaonnistui ja poisto peruttiin, etta data ei kadoisi. Vink: sulje sovellus ja yrita uudelleen, tai siirra AppData-kansio kasin. Syy: " + $_.Exception.Message)
+        }
     }
     & $Status 'Poistetaan asennuskansio...'
     # Yritetaan muutaman kerran: juuri suljetun prosessin tiedostolukot

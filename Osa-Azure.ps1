@@ -102,6 +102,17 @@ function Ensure-HkAzCli {
             & $OnStep 'azure-cli' 'info' 'Ladataan Azure CLI:n asennuspaketti (Microsoftin virallinen jakelu)...'
             $msi = Join-Path $env:TEMP 'huoltokello-azurecli.msi'
             Invoke-WebRequest 'https://aka.ms/installazurecliwindows' -OutFile $msi -UseBasicParsing
+            # v2.7.4: tarkista etta asennuspaketti on alkuperainen Microsoftin allekirjoittama
+            # ennen kuin se ajetaan jarjestelmanvalvojana (msiexec). Vankistan tai viallinen
+            # tiedosto hylataan - kayttaja ohjataan asentamaan itse viralliselta sivulta.
+            $sig = $null
+            try { $sig = Get-AuthenticodeSignature -FilePath $msi -ErrorAction Stop } catch { }
+            $sigOk = ($sig -and $sig.Status -eq [System.Security.Cryptography.X509Certificates.SignatureStatus]::Valid -and
+                      $sig.SignerCertificate -and $sig.SignerCertificate.Subject -match 'Microsoft Corporation')
+            if (-not $sigOk) {
+                $st = if ($sig) { $sig.Status } else { 'ei saatavilla' }
+                throw ("Ladatun Azure CLI:n asennuspaketin allekirjoitusta ei vahvistettu ($st). Tiedosto hylattiin. Asenna Azure CLI itse osoitteesta https://aka.ms/installazurecliwindows ja aja velho uudelleen.")
+            }
             & $OnStep 'azure-cli' 'info' 'Azure CLI:n asennus vaatii yllapito-oikeudet - hyvaksy Windowsin lupa-kysely.'
             $pr = Start-Process msiexec.exe -ArgumentList @('/i', ('"' + $msi + '"'), '/qn', '/norestart') -Verb RunAs -Wait -PassThru
             if ($pr.ExitCode -ne 0) { throw ("Azure CLI:n asennus keskeytyi (msiexec=" + $pr.ExitCode + "). Asenna kaasin: https://aka.ms/installazurecliwindows") }

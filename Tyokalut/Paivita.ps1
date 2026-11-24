@@ -57,7 +57,8 @@ if (Test-Path $appData) {
 }
 
 Write-Host "Puretaan paivitys: $zip"
-Expand-Archive -Path $zip -DestinationPath $dir -Force
+# v2.7.4: turvallinen zip-purku (zip slip -esto) yhteisesta apustiedostosta
+Expand-HkZipSafe -ZipPath $zip -Destination $dir | Out-Null
 
 # Varmista etta asennus pysyy tyhjana (ei demodataa) eika yksityisavainta jaada appsettings.jsoniin
 if (Test-Path $settingsPath) {

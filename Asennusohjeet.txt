@@ -40,8 +40,8 @@ Jos velho ei aukea, voit kaynnistaa sen myos PowerShellista:
  Sivu 3  Yllapitajatili     - luodaan ensimmainen Johto-tili:
                               * Nimi (esim. "Matti Meikalainen")
                               * Sahkoposti = kirjautumistunnus
-                              * Salasana: vahintaan 8 merkcia, iso kirjain
-                                ja numero (esim. "Kello2026")
+                              * Salasana: vahintaan 12 merkcia, iso kirjain
+                                ja numero (esim. "Kello2026Huolto")
                               TILI TULEE MUISTAA: salasanaa EI voi nollata
                               sovelluksesta. Jos se unohtuu, luodaan uusi
                               johtotili Tyokalut\Luo-YllapitajaTili.ps1.
@@ -71,7 +71,12 @@ Jos velho ei aukea, voit kaynnistaa sen myos PowerShellista:
    powershell -ExecutionPolicy Bypass -File .\Asenna-Huoltokello.ps1 `
      -Silent -InstallDir "C:\Huoltokello" -Port 8088 `
      -AdminName "Matti Meikalainen" -AdminEmail "matti@yritys.fi" `
-     -AdminPassword "Kello2026" -AutoStart
+     -AdminPassword "Kello2026Huolto" -AutoStart
+
+ Salasana suojattuna: -AdminPasswordSecure (SecureString) tai
+   HKA_ADMIN_PASSWORD-ymparistomuuttuja — kumpikaan ei jaa salasanaa
+   komentoriviargumentiksi (toiminta-/keskushistoriaan). Suora
+   -AdminPassword toimii yha, mutta skripti varoittaa siita.
 
  Valinnaiset lisakytkimet:  -LanAccess/-PhoneAccess (koko lahiverkko:
                             -NoShortcuts (ei pikakuvakkeita)

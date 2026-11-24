@@ -56,15 +56,24 @@ if (-not $Silent) {
 if ($keepData -and (Test-Path $appData)) {
     $dest = Join-Path $desktop ("Huoltokello-data-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".zip")
     try {
-        Compress-Archive -Path $appData -DestinationPath $dest -Force
+        Compress-Archive -Path $appData -DestinationPath $dest -Force -ErrorAction Stop
         Write-Host "Data varmuuskopioitu: $dest"
-    } catch { Write-Host "Varmuuskopiointi epaonnistui: $_" }
+    } catch {
+        # v2.7.4: varmuuskopion epaonnistuessa kansiota EI poisteta (data ei saa kadota)
+        Write-Warning "Varmuuskopiointi epaonnistui ($_). Asennuskansiota EI poisteta, jotta data ei kadota."
+        Write-Warning "Vink: sulje sovellus ja yrita uudelleen, tai siirra AppData-kansio kasin."
+        $keepData = 'epaonnistui'
+    }
 }
 
-# 7) Asennuskansio
-Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
-if (Test-Path $dir) { Write-Warning "Kansio ei tyhjennyt kokonaan (jokin tiedosto kaytossa): $dir" }
-else { Write-Host "Asennuskansio poistettu: $dir" }
+# 7) Asennuskansio (poistetaan vain jos varmuuskopio onnistui tai sita ei pyydetty)
+if ($keepData -ne 'epaonnistui') {
+    Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+    if (Test-Path $dir) { Write-Warning "Kansio ei tyhjennyt kokonaan (jokin tiedosto kaytossa): $dir" }
+    else { Write-Host "Asennuskansio poistettu: $dir" }
+} else {
+    Write-Host "Asennuskansio sailytettiin: $dir (varmuuskopio ensin kasin)" -ForegroundColor Yellow
+}
 
 Write-Host ""
 Write-Host "Poisto valmis." -ForegroundColor Green

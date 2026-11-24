@@ -40,7 +40,8 @@ try {
     }
 
     Write-Host "Palautetaan: $zip"
-    Expand-Archive -Path $zip -DestinationPath $dir -Force
+    # v2.7.4: turvallinen zip-purku (zip slip -esto) yhteisesta apustiedostosta
+    Expand-HkZipSafe -ZipPath $zip -Destination $dir | Out-Null
     Write-Host "Palautus valmis."
 }
 finally {

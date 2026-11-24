@@ -17,7 +17,10 @@
 # Hiljainen:   powershell -File Asenna-Huoltokello-Multa.ps1 -Silent -Mode paikallinen
 #              -InstallDir "C:\Huoltokello" -Port 8088
 #              -AdminName "Maija Meikalainen" -AdminEmail "maija@firma.fi"
-#              -AdminPassword "Salasana1" -HyvaksyLuvat
+#              -AsennaTalous   (asentaa samalla Huoltokello-Talous -rahoitusmoduulin)
+#              -HyvaksyLuvat   (salasana joko:  -AdminPasswordSecure (suositus, kysyy)
+#               tai ymparistomuuttuja HKA_ADMIN_PASSWORD; -AdminPassword toimii mutta
+#               nakyy prosessilistauksissa)
 #              (Mode: paikallinen | azure | serveri; azure vaatii -AzName,
 #               serveri vaatii -ServerHost -ServerUser -ServerPass)
 # Itsetesti:   powershell -File Asenna-Huoltokello-Multa.ps1 -SelfTest
@@ -32,7 +35,10 @@ param(
     [string]$AdminEmail,
     [string]$AdminTitle,
     [string]$AdminPassword,
+    [SecureString]$AdminPasswordSecure,
     [switch]$AutoStart,
+    # v2.8.0: asenna samalla talousmoduuli Huoltokello-Talous (paikallinen asennus)
+    [switch]$AsennaTalous,
     [switch]$PhoneAccess,
     [switch]$LanAccess,
     [switch]$NoShortcuts,
@@ -61,13 +67,30 @@ $IconFile     = Join-Path $PackageDir 'assets\huoltokello.ico'
 $OhjeIconFile = Join-Path $PackageDir 'assets\huoltokello-ohjeet.ico'
 $AzureOsat    = Join-Path $PackageDir 'Osa-Azure.ps1'
 $PalvelinOsat = Join-Path $PackageDir 'Osa-Palvelin.ps1'
+# v2.8.0: talousmoduuli (Huoltokello-Talous) - valinnainen osa paikallista asennusta
+$TalousZip   = Join-Path $PackageDir 'Huoltokello-Talous-1.1.0.zip'
+$TalousRoot  = Join-Path $env:LOCALAPPDATA 'Huoltokello-Talous'
+$TalousApp   = Join-Path $TalousRoot 'app'
+$TalousData  = Join-Path $TalousRoot 'Data'
+$TalousPort  = 8090
 $DefaultPort = 8088
+# v2.8.1: velhon versio ( näkyy Sovellukset-listassa ja VERSIO.txt:ssa;
+# päivitä tässä, kun sovellus tai velho muuttuu)
+$WizardVersion = '2.8.1'
+# v2.8.1: asennettavan sovelluksen versio (app.zip, 2.8.0):
+#   * kuvan mukainen ulkoasu (tumma sivupalkki + yläpalkki),
+#   * etusivun suoritustason mittari (myöhässä/käsittelyssä/valmiit/uudet),
+#   * etusivun Raportoi Excel -kokoontai (tallennus työpöydälle)
 # TLS 1.2 selkeasti kayttoon (Azureen yhdistettaessa PowerShell 5.1:ssa)
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch { }
 if (-not (Test-Path $AzureOsat))    { throw "Osa-Azure.ps1 puuttuu paketista - asenna kokonaisuudessaan kansio Huoltokello-Multiasennus." }
 if (-not (Test-Path $PalvelinOsat)) { throw "Osa-Palvelin.ps1 puuttuu paketista - asenna kokonaisuudessaan kansio Huoltokello-Multiasennus." }
 . $AzureOsat
 . $PalvelinOsat
+# v2.7.4: yhteiset apurit (turvallinen zip-purku, ACL, kansioiden tarkistus)
+$YhteinenApurit = Join-Path $PackageDir 'Tyokalut\_yhteinen.ps1'
+if (-not (Test-Path $YhteinenApurit)) { throw "Tyokalut\_yhteinen.ps1 puuttuu paketista - asenna kokonaisuudessaan kansio Huoltokello-Multiasennus." }
+. $YhteinenApurit
 
 # ---------- Apufunktiot ----------
 
@@ -79,7 +102,8 @@ function Test-Email {
 function Test-HkPasswordRule {
     param([string]$Password)
     if ([string]::IsNullOrWhiteSpace($Password)) { return 'Salasana vaaditaan.' }
-    if ($Password.Length -lt 8) { return 'Salasanan on oltava vahintaan 8 merkkiä pitkä.' }
+    # v2.7.4: vahennetty minimipituus 8 -> 12 merkkiä (NIST SP 800-63B mukainen pitka salalause)
+    if ($Password.Length -lt 12) { return 'Salasanan on oltava vahintaan 12 merkkiä pitkä.' }
     if ($Password -notmatch '[A-ZÄÖÜ]') { return 'Salasanassa on oltava vahintaan yksi suuraakkonen.' }
     if ($Password -notmatch '\d') { return 'Salasanassa on oltava vahintaan yksi numero.' }
     return $null
@@ -222,25 +246,9 @@ function New-HkAppPackage {
     New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
     Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
     if ($OnStep) { & $OnStep 'pakkaus' 'start' '' }
-    $zip = [System.IO.Compression.ZipFile]::OpenRead($AppZip)
-    try {
-        $total = $zip.Entries.Count
-        $done = 0
-        foreach ($entry in $zip.Entries) {
-            $target = Join-Path $stageDir $entry.FullName
-            $targetDir = Split-Path -Parent $target
-            if ($entry.FullName -match '[/\\]$') {
-                if (-not (Test-Path $target)) { New-Item -ItemType Directory -Force -Path $target | Out-Null }
-            } else {
-                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Force -Path $targetDir | Out-Null }
-                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $true)
-            }
-            $done++
-            if (($done % 40) -eq 0 -or $done -eq $total) {
-                if ($OnStep) { & $OnStep 'pakkaus' 'info' ("{0}/{1}" -f $done, $total) }
-            }
-        }
-    } finally { $zip.Dispose() }
+    # v2.7.4: turvallinen zip-purku (zip slip -esto) yhteisesta apustiedostosta;
+    # palauttaa purettujen merkintojen lukumaaran
+    $done = Expand-HkZipSafe -ZipPath $AppZip -Destination $stageDir
     # Asetukset: tyhja asennus, yksityisavain ei jaa julkaisupakettiin
     $settingsPath = Join-Path $stageDir 'appsettings.json'
     $json = Get-Content $settingsPath -Raw | ConvertFrom-Json
@@ -287,6 +295,12 @@ function Invoke-HkInstall {
 
     # --- 1) Asennuskansio ---
     & $OnStep 'kansio' 'start' ''
+    # v2.7.4: estetaan asennus vaarallisille kohdekansioille (kotikansio, Windows, Program Files jne.)
+    try { $dir = Assert-HkSafeInstallDir -Path $dir }
+    catch {
+        & $OnStep 'kansio' 'fail' $_.Exception.Message
+        throw $_.Exception.Message
+    }
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
     # Kirjoitustesti
     $probe = Join-Path $dir '.asennustesti'
@@ -319,26 +333,8 @@ function Invoke-HkInstall {
         throw "app.zip puuttuu paketista: $AppZip"
     }
     & $OnStep 'tiedostot' 'start' ''
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    $zip = [System.IO.Compression.ZipFile]::OpenRead($AppZip)
-    try {
-        $total = $zip.Entries.Count
-        $done = 0
-        foreach ($entry in $zip.Entries) {
-            $target = Join-Path $dir $entry.FullName
-            $targetDir = Split-Path -Parent $target
-            if ($entry.FullName -match '[/\\]$') {
-                if (-not (Test-Path $target)) { New-Item -ItemType Directory -Force -Path $target | Out-Null }
-            } else {
-                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Force -Path $targetDir | Out-Null }
-                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $true)
-            }
-            $done++
-            if (($done % 20) -eq 0 -or $done -eq $total) {
-                & $OnStep 'tiedostot' 'info' ("{0}/{1}" -f $done, $total)
-            }
-        }
-    } finally { $zip.Dispose() }
+    # v2.7.4: turvallinen zip-purku (zip slip -esto) yhteisesta apustiedostosta
+    $total = Expand-HkZipSafe -ZipPath $AppZip -Destination $dir
     & $OnStep 'tiedostot' 'ok' ("{0} tiedostoa purettu" -f $total)
 
     # --- 3) Asetukset: tyhja asennus (ei demodataa) + VAPID-avaimet suojattuun tiedostoon ---
@@ -386,6 +382,8 @@ function Invoke-HkInstall {
         New-Item -ItemType Directory -Force -Path $appData | Out-Null
         @{ Email = $s.AdminEmail; FullName = $s.AdminName; Title = $s.AdminTitle; Password = $s.AdminPassword } |
             ConvertTo-Json | Set-Content (Join-Path $appData 'first-admin.json') -Encoding UTF8
+        # v2.7.4: salasanatiedoston ACL rajataan vain kayttajalle (+SYSTEM)
+        $null = Protect-HkSecretFile -Path (Join-Path $appData 'first-admin.json')
         & $OnStep 'tili' 'ok' ("Johto-tili luodaan ensimmaisella kaynnistyksella: " + $s.AdminEmail)
     }
 
@@ -527,7 +525,7 @@ aja Tyokalut\Luo-YllapitajaTili.ps1 ja luo UUSI johtotili toisella sahkopostilla
             Get-ChildItem $dir -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object { $estKb += [int]($_.Length / 1KB) }
         } catch { }
         Set-ItemProperty $regKey -Name 'DisplayName'     -Value 'Huoltokello'
-        Set-ItemProperty $regKey -Name 'DisplayVersion'  -Value '2.4.1'
+        Set-ItemProperty $regKey -Name 'DisplayVersion'  -Value $WizardVersion
         Set-ItemProperty $regKey -Name 'Publisher'       -Value 'Huoltokello'
         Set-ItemProperty $regKey -Name 'InstallLocation' -Value $dir
         if (Test-Path (Join-Path $dir 'huoltokello.ico')) { Set-ItemProperty $regKey -Name 'DisplayIcon' -Value (Join-Path $dir 'huoltokello.ico') }
@@ -609,7 +607,199 @@ aja Tyokalut\Luo-YllapitajaTili.ps1 ja luo UUSI johtotili toisella sahkopostilla
     & $OnStep 'varmistus' 'ok' 'Kirjautumissivu vastaa'
     & $OnStep 'valmis' 'ok' $baseUrl
 
-    return @{ Ok = $true; Url = $baseUrl; Dir = $dir; Port = $port; Email = $s.AdminEmail; Updated = $isUpdate; Lan = [bool]$s.LanAccess }
+    # --- 10) Talousmoduuli (Huoltokello-Talous 1.1, valinnainen) ---
+    $talUrl = "http://127.0.0.1:$TalousPort"
+    $talMsg = 'Ohitettu (ei pyydetty)'
+    $talOk  = $false
+    if ($s.InstallTalous) {
+        if (Test-Path $TalousZip) {
+            try {
+                $tal = Invoke-HkTalousInstall -OnStep $OnStep -HkDb (Join-Path $appData 'huoltokello.db') -HkDir $dir
+                $talOk = $true; $talMsg = $tal.Viesti
+            } catch {
+                # talousasennuksen epaonnistus EI saa kaataa Huoltokello-asennusta
+                & $OnStep 'talous' 'fail' ('Talousmoduulin asennus epäonnistui: ' + $_.Exception.Message + '  (Huoltokello asennettiin onnistuneesti - Talouksen voi asentaa myöhemmin talousosion Asenna-Talous.cmd-skriptillä.)')
+                $talMsg = 'epäonnistui - asenna jälkikäteen Huoltokello-Talous-paketin Asenna-Talous.cmd'
+            }
+        } else {
+            & $OnStep 'talous' 'info' 'Huoltokello-Talous-1.1.0.zip puuttuu paketista - talousmoduulia ei asenneta.'
+            $talMsg = 'ei asennettu (talousosa puuttuu paketista)'
+        }
+    } else {
+        & $OnStep 'talous' 'info' 'Ohitettu (ei pyydetty)'
+    }
+
+    return @{ Ok = $true; Url = $baseUrl; Dir = $dir; Port = $port; Email = $s.AdminEmail; Updated = $isUpdate; Lan = [bool]$s.LanAccess; Talous = $talOk; TalousUrl = $talUrl; TalousViesti = $talMsg }
+}
+
+# ------------------ Talousmoduuli (Huoltokello-Talous, v2.8.0) ------------------
+
+function Find-HkTalousPython {
+    # Loytyyko soveltuva Python 3.10+ (sama tarkistus kuin Asenna-Talous.ps1:ssa)
+    foreach ($cand in @(@('py', '-3'), @('python'), @('python3'))) {
+        try {
+            $exe = $cand[0]; $pre = @($cand | Select-Object -Skip 1)
+            $v = & $exe @pre -c "import sys; print('%d.%d' % sys.version_info[:2]); print(sys.executable)" 2>$null
+            if ($LASTEXITCODE -eq 0 -and $v -and $v.Count -ge 2) {
+                $parts = ([string]$v[0]).Split('.')
+                if ([int]$parts[0] -eq 3 -and [int]$parts[1] -ge 10) { return ([string]$v[1]).Trim() }
+            }
+        } catch { }
+    }
+    return $null
+}
+
+function Stop-HkTalousServer {
+    # Pysayttaa kaynnissa olevan talousserverin (paivitys ei muuten paasta ylikirjoittamaan)
+    $n = 0
+    try {
+        $procs = Get-CimInstance Win32_Process -Filter "Name LIKE 'py%'" -ErrorAction SilentlyContinue |
+            Where-Object { $_.CommandLine -match 'huoltokello_talous' }
+        foreach ($p in @($procs)) {
+            Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+            $n++
+        }
+        if ($n -gt 0) { Start-Sleep -Milliseconds 900 }
+    } catch { }
+    return $n
+}
+
+function Invoke-HkTalousInstall {
+    # Asentaa/paivittaa Huoltokello-Talous -moduulin (paikallinen asennus):
+    #   1) purkaa talouszipin ja kopioi huoltokello_talous paalle (data sailytetaan)
+    #   2) ajaa talouskannan alustuksen + kytketaan Huoltokello-silta (vain luku)
+    #   3) tekee Kaynnista-Talous.cmd -kaynnistajan + pikakuvakkeet
+    param($OnStep, [string]$HkDb, [string]$HkDir)
+    # Natiivikomentojen stderr-rivit eivat saa tappaa asennusta
+    $ErrorActionPreference = 'Continue'
+
+    & $OnStep 'talous' 'start' ''
+    $py = Find-HkTalousPython
+    if (-not $py) {
+        & $OnStep 'talous' 'info' 'Python 3.10+ puuttuu - asennetaan Python 3.12 winget-työkalulla (voi kestaa minuutin)...'
+        try { $null = & winget install --id Python.Python.3.12 -e --scope user --accept-package-agreements --accept-source-agreements 2>&1 } catch { }
+        try { $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine') } catch { }
+        $py = Find-HkTalousPython
+        if (-not $py) { throw 'Python 3.10+ ei löytynyt eikä winget-asennus onnistunut. Asenna Python (python.org) ja aja velho uudelleen talous valittuna.' }
+    }
+    $stopped = Stop-HkTalousServer
+
+    # --- 1) Purku: zip -> valiaikainen kansio -> %LOCALAPPDATA%\Huoltokello-Talous\app
+    $stage = Join-Path ([IO.Path]::GetTempPath()) ('hktalous-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    try {
+        & $OnStep 'talous' 'info' 'Puretaan Huoltokello-Talous-1.1.0.zip (turvallisella purkijalla)...'
+        $null = Expand-HkZipSafe -ZipPath $TalousZip -Destination $stage
+        $stagePayload = Join-Path $stage 'Huoltokello-Talous'
+        if (-not (Test-Path (Join-Path $stagePayload 'huoltokello_talous'))) { throw 'talousosasta puuttuu kansio huoltokello_talous - paketti on rikki.' }
+
+        New-Item -ItemType Directory -Force -Path $TalousRoot, $TalousApp, $TalousData | Out-Null
+        $null = & icacls.exe @($TalousRoot, '/inheritance:r', '/grant:r', ("*{0}:(OI)(CI)F" -f [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value), '/grant:r', '*S-1-5-18:(OI)(CI)F') 2>$null
+
+        # Ylikirjoitetaan ohjelmakoodi; data- ja tietokantakansiot sailyvat
+        if (Test-Path (Join-Path $TalousApp 'huoltokello_talous')) { Remove-Item (Join-Path $TalousApp 'huoltokello_talous') -Recurse -Force -ErrorAction SilentlyContinue }
+        Copy-Item (Join-Path $stagePayload 'huoltokello_talous') (Join-Path $TalousApp 'huoltokello_talous') -Recurse -Force
+        foreach ($t in @('tests', 'docs')) {
+            if (Test-Path (Join-Path $stagePayload $t)) { Copy-Item (Join-Path $stagePayload $t) (Join-Path $TalousApp $t) -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+        foreach ($f in @('README.md', 'KATSELMOINTI.md', 'Asenna-Talous.ps1', 'Asenna-Talous.cmd')) {
+            if (Test-Path (Join-Path $stagePayload $f)) { Copy-Item (Join-Path $stagePayload $f) $TalousApp -Force }
+        }
+        foreach ($f in @('Asenna-Talous.ps1', 'Asenna-Talous.cmd', 'README.md')) {
+            if (Test-Path (Join-Path $TalousApp $f)) { Copy-Item (Join-Path $TalousApp $f) $TalousRoot -Force -ErrorAction SilentlyContinue }
+        }
+        $talousVer = ''
+        try {
+            $initTxt = Get-Content (Join-Path $TalousApp 'huoltokello_talous\__init__.py') -Raw -ErrorAction SilentlyContinue
+            if ($initTxt -match '__version__\s*=\s*"([^"]+)"') { $talousVer = $Matches[1] }
+        } catch { }
+        & $OnStep 'talous' 'ok' ("kopioitu moduuli" + $(if ($talousVer) { " (versio $talousVer)" }) + ' - data säilytettiin' + $(if ($stopped) { " (vanha palvelin pysäytettiin)" } else { '' }))
+    } finally {
+        Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    # --- 2) Tietokanta + Huoltokello-silta
+    & $OnStep 'talous-kanta' 'start' ''
+    Push-Location $TalousApp
+    try {
+        & $py -m huoltokello_talous --data $TalousData alusta 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'talouskannan alustus epäonnistui (alusta).' }
+
+        if ($HkDb -and (Test-Path $HkDb)) {
+            # Siltan asetus: talous osoitetaan Huoltokellon tietokantaan (vain luku)
+            $bridgePy = Join-Path ([IO.Path]::GetTempPath()) ('hk-silta-' + [guid]::NewGuid().ToString('N').Substring(0, 6) + '.py')
+            [IO.File]::WriteAllText($bridgePy, @'
+# Velhon asettama Huoltokello-siltayhteys (vain luku)
+import sys
+sys.path.insert(0, r"__APP__")
+from huoltokello_talous import app_context, settings
+app_context.init(sys.argv[1])
+settings.set("hk.db_path", sys.argv[2])
+print("hk.db_path =>", sys.argv[2])
+'@.Replace('__APP__', $TalousApp), [Text.UTF8Encoding]::new($false))
+            & $py $bridgePy $TalousData $HkDb 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'siltayhteyden asetus epäonnistui (hk.db_path).' }
+            Remove-Item $bridgePy -Force -ErrorAction SilentlyContinue
+            & $OnStep 'talous-kanta' 'info' ("Huoltokello-yhteys: " + $HkDb + ' (vain luku)')
+            $preview = & $py -m huoltokello_talous --data $TalousData huoltokello-synk --esikatselu 2>&1 | ForEach-Object { "$_" }
+            if ($LASTEXITCODE -eq 0) {
+                $first = ($preview -join ' ').Trim()
+                if ($first.Length -gt 96) { $first = $first.Substring(0, 96) + '...' }
+                & $OnStep 'talous-kanta' 'ok' ("silta toimii - esikatselu: " + $(if ($first) { $first } else { 'ok' }))
+            } else {
+                & $OnStep 'talous-kanta' 'ok' 'silta asetettu - esikatselua ei voitu suorittaa (tarkista Rekisterit > Huoltokello-yhteys-sivulla.'
+            }
+        } else {
+            & $OnStep 'talous-kanta' 'ok' 'talouskanta alustettu - Huoltokellon tietokantaa ei löytynyt; yhdistä Rekisterit > Huoltokello-yhteys-sivulla.'
+        }
+    } finally {
+        Pop-Location
+    }
+
+    # --- 3) Kaynnistaja + pikakuvakkeet
+    & $OnStep 'talous-pikakuva' 'start' ''
+    $launcher = Join-Path $TalousRoot 'Kaynnista-Talous.cmd'
+    $cmdText = "@echo off`r`ncd /d `"$TalousApp`"`r`nstart `"`" /min `"$py`" -m huoltokello_talous --data `"$TalousData`" palvelin --port $TalousPort`r`ntimeout /t 3 /nobreak >nul`r`nstart `"`" http://127.0.0.1:$TalousPort`r`n"
+    [IO.File]::WriteAllText($launcher, $cmdText, [Text.UTF8Encoding]::new($false))
+    try {
+        $wsh = New-Object -ComObject WScript.Shell
+        $targets = @()
+        $targets += ,@((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Huoltokello-Talous.lnk'))
+        $targets += ,@((Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Huoltokello-Talous.lnk'))
+        $made = 0
+        foreach ($t in $targets) {
+            $sc = $wsh.CreateShortcut($t[0])
+            $sc.TargetPath = $launcher
+            $sc.WorkingDirectory = $TalousRoot
+            $sc.IconLocation = "$env:SystemRoot\System32\imageres.dll,109"
+            $sc.Description = 'Huoltokello-Talous: työaika, laskutus, kirjanpito ja palkat'
+            $sc.Save()
+            $made++
+        }
+        & $OnStep 'talous-pikakuva' 'ok' ("Kaynnista-Talous.cmd + {0} pikakuvaketta" -f $made)
+    } catch {
+        & $OnStep 'talous-pikakuva' 'ok' ("Kaynnista-Talous.cmd luotu - pikakuvakkeita ei voitu luoda (" + $_.Exception.Message + ')')
+    }
+
+    # --- 4) Varmistus + yhteenveto
+    & $OnStep 'talous-valmis' 'start' ''
+    if (-not (Test-Path (Join-Path $TalousApp 'huoltokello_talous'))) { throw 'talousmoduulin kopiointi epäonnistui.' }
+    $summaryTxt = @"
+Huoltokello-Talous - velhon asentama talousosio
+
+Moduuli:        $TalousApp (Huoltokello-Talous-1.1.0.zip; aiempi data säilytetty)
+Data:           $TalousData
+Palvelu:        http://127.0.0.1:$TalousPort  (Kaynnista-Talous.cmd käynnistää + avaa selaimen)
+Huoltokello:    $HkDir
+Siltayhteys:    hk.db_path = $HkDb   (Talous lukee Huoltokellon tietokantaa vain lukutilassa)
+                Automaattinen synkronointi otetaan päälle Talouksien Rekisterit > Huoltokello-yhteys-sivulta.
+"@
+    [IO.File]::WriteAllText((Join-Path $TalousRoot 'Asennus-yhteenveto.txt'), $summaryTxt, [Text.Encoding]::UTF8)
+    try {
+        Add-Content -Path (Join-Path $HkDir 'Asennus-yhteenveto.txt') -Value ("Talousmoduuli: $talUrl" + $(if ($talousVer) { " (versio $talousVer)" } else { '' })) -Encoding UTF8 -ErrorAction SilentlyContinue
+    } catch { }
+    & $OnStep 'talous-valmis' 'ok' ("moduuli" + $(if ($talousVer) { " $talousVer" }) + " osoitteessa $talUrl")
+
+    return @{ Ok = $true; Viesti = ('asennettu' + $(if ($talousVer) { " (versio $talousVer)" } else { '' }) + " -> $talUrl"); Versio = $talousVer }
 }
 
 # ---------- GUI ----------
@@ -627,9 +817,13 @@ $script:StepLabels = @{
     palomuuri      = 'Palomuuri (lähiverkko)'
     kaynnistys     = 'Käynnistetään Huoltokello'
     varmistus      = 'Varmistus'
+    'talous'         = 'Talousmoduuli (Huoltokello-Talous)'
+    'talous-kanta'   = 'Talous: tietokanta ja Huoltokello-yhteys'
+    'talous-pikakuva' = 'Talous: käynnistin ja pikakuvakkeet'
+    'talous-valmis'  = 'Talous: valmistelun varmistus'
     valmis         = 'Valmis'
 }
-$script:StepOrder = @('kansio','tiedostot','asetukset','tili','tyokalut','pikakuvakkeet','rekisteri','autostart','palomuuri','kaynnistys','varmistus')
+$script:StepOrder = @('kansio','tiedostot','asetukset','tili','tyokalut','pikakuvakkeet','rekisteri','autostart','palomuuri','kaynnistys','varmistus','talous','talous-kanta','talous-pikakuva','talous-valmis')
 
 $script:AzureStepLabels = @{
     'azure-cli'       = 'Azure CLI -työkalu'
@@ -738,7 +932,7 @@ function Show-HkWizard {
           <TextBlock Text="Salasana uudelleen *" Grid.Row="4" VerticalAlignment="Center"/>
           <PasswordBox x:Name="pwPassword2" Grid.Column="1" Grid.Row="4"/>
         </Grid>
-        <TextBlock Text="Vähintään 8 merkkiä, suuraakkonen ja numero (esim. Huolto2026!)" Foreground="#6B7280" FontSize="12"/>
+        <TextBlock Text="Vähintään 12 merkkiä, suuraakkonen ja numero (esim. Kello2026Huolto)" Foreground="#6B7280" FontSize="12"/>
         <TextBlock x:Name="lblAdminError" Foreground="#DC2626" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,6,0,0"/>
       </StackPanel>
       <StackPanel x:Name="PageOptions" Visibility="Collapsed">
@@ -748,6 +942,7 @@ function Show-HkWizard {
         <CheckBox x:Name="chkAutoStart" Content="Käynnistä automaattisesti Windows-kirjautumisen yhteydessä"/>
         <CheckBox x:Name="chkPhone" IsChecked="True" Content="Salli käyttö samassa WiFi/lähiverkossa (muut tietokoneet ja puhelimet) — Windows kysyy ylläpito-oikeudet palomuurisääntöön"/>
         <CheckBox x:Name="chkOpenBrowser" IsChecked="True" Content="Avaa selain automaattisesti asennuksen jälkeen"/>
+        <CheckBox x:Name="chkTalous" IsChecked="False" Content="Asenna samalla Huoltokello-Talous -rahoitusmoduuli (työaika, laskutus, kirjanpito, palkat — selain osoitteessa http://127.0.0.1:8090)"/>
         <TextBlock TextWrapping="Wrap" Margin="0,14,0,0" Foreground="#6B7280"
                    Text="Lähiverkkokäyttö: kaikki saman verkon laitteet käyttävät samaa dataa reaaliajassa (SignalR). Verkko-osoitteet näkyvät yhteenvedossa, lopputuloksessa ja sovelluksen ⚙️ Asetukset-sivulla. Voit muuttaa asetusta myöhemmin asetuksista tai Tyokalut-kansiosta (PuhelinKaytto.ps1)."/>
       </StackPanel>
@@ -885,7 +1080,7 @@ function Show-HkWizard {
                         'lblLuvatList','chkLuvat','lblLuvatError',
                         'txtDir','btnBrowse','txtPort','lblDirError','txtName','txtEmail','txtTitle',
                         'pwPassword','pwPassword2','lblAdminError','chkDesktop','chkStartMenu','chkAutoStart',
-                        'chkPhone','chkOpenBrowser','lblSummary','pbProgress','lstSteps','lblInstStatus',
+                        'chkPhone','chkOpenBrowser','chkTalous','lblSummary','pbProgress','lstSteps','lblInstStatus',
                         'lblDoneTitle','lblDoneInfo','btnOpenBrowser','btnOpenHelp','btnOpenFolder','btnFinish',
                         'lblFooterError','btnBack','btnNext','btnCancel',
                         'ExistingWarn','btnUninstall')) {
@@ -929,7 +1124,7 @@ function Show-HkWizard {
 • Asennetaan Azure CLI -työkalu, jos se ei vielä ole koneellasi (Microsoftin virallinen jakelu; Windows saattaa kysyä ylläpitoluvan).
 • Kirjaudutaan puolestasi Microsoft-tilille laitteistokoodilla (koodi näytetään velhossa).
 • Luodaan Azureen resurssiryhmä, App Service -palvelupaketti ja sovellus valitsemallesi alueelle ja hintatason mukaisesti (veloittaa tilauksessasi sovitun hintatason mukaan).
-• Tallennetaan sovellusasetukset (HTTPS-pakotus, HTTP/2, VAPID-ilmoitusavaimet ympäristöasetuksiin).
+• Tallennetaan sovellusasetukset (HTTPS-pakotus, HTTP/2, always-on) ja ilmoitusten VAPID-avaimet Azure-ympäristöasetuksiin (turvattu Azure-tilisi kirjautumisella).
 • Viedään Huoltokello-ohjelmapaketti Azureen (zip-vienti) ja avataan sovellus.
 • Luodaan ensimmäinen ylläpitäjätili annetuilla tiedoilla (ei demodataa).
 "@
@@ -943,12 +1138,23 @@ function Show-HkWizard {
 • Vanhat tiedostot ylikirjoitetaan; olemassa oleva tietokanta (AppData\huoltokello.db) säilyy, eikä sitä poisteta.
 "@
         }
+        $talLuvat = ''
+        if ($c.chkTalous.IsChecked -and (Test-Path $TalousZip)) {
+            $talLuvat = @"
+• Asennetaan Huoltokello-Talous -rahoitusmoduuli (työaika, laskutus, kirjanpito, palkat):
+  ohjelma %LOCALAPPDATA%\Huoltokello-Talous\app, data \Data, palvelu osoitteessa http://127.0.0.1:$TalousPort.
+  Luodaan Kaynnista-Talous.cmd sekä työpöydän ja käynnistysvalikon pikakuvake.
+• Kytketään silta: Talous lukee Huoltokellon tietokantaa VAIN LUKUTILASSA eikä kirjoita sen tietoihin.
+  Automaattinen kuittausten synkronointi otetaan päälle vasta kun valitset sen Talouksien Rekisterit > Huoltokello-yhteys -sivulla.
+• Jos Python 3.10+ puuttuu, asennetaan Python 3.12 winget-työkalulla (Microsoftin virallinen jakelu).
+"@
+        }
         return @"
 • Kirjoitetaan ohjelmatiedostot valitsemaasi kansioon ja luodaan pikakuvakkeet/käynnistysvalikko-merkinnät.
 • Luodaan ensimmäinen ylläpitäjätili annetuilla tiedoilla (ei demodataa) ja suojataan VAPID-yksityisavain sovelluksen AppData-kansioon.
 • Rekisteröidään ohjelma Windowsin Sovellukset-listaan.
 • Jos valitset lähiverkkokäytön: lisätään palomuurisääntö (Windows kysyy ylläpitoluvan).
-• Autom. käynnistys: luodaan tehtävä-ajastus Huoltokello (tapahtuu vain, jos valitset sen).
+• Autom. käynnistys: luodaan tehtävä-ajastus Huoltokello (tapahtuu vain, jos valitset sen).$talLuvat
 "@
     }
 
@@ -994,6 +1200,7 @@ function Show-HkWizard {
             PhoneAccess       = [bool]$c.chkPhone.IsChecked
             LanAccess         = [bool]$c.chkPhone.IsChecked
             OpenBrowser       = [bool]$c.chkOpenBrowser.IsChecked
+            InstallTalous     = [bool]$c.chkTalous.IsChecked
             NoShortcuts       = $false
             Silent            = $false
             AzName            = $c.txtAzName.Text.Trim().ToLower()
@@ -1180,6 +1387,7 @@ Valinnaiset:
   Automaattinen käynnistys:  $(if ($s.AutoStart) { 'kyllä' } else { 'ei' })
   Puhelinkäyttö (WiFi):      $(if ($s.LanAccess) { 'kyllä - koko lähiverkko (pyytää ylläpito-oikeudet)' } else { 'ei' })
   Selain asennuksen jälkeen: $(if ($s.OpenBrowser) { 'kyllä' } else { 'ei' })
+  Talousmoduuli:             $(if ($s.InstallTalous -and (Test-Path $TalousZip)) { 'asennetaan (http://127.0.0.1:' + $TalousPort + ')' } else { 'ei asenneta' })
 
 Ohjelma asennetaan TYHJÄNÄ: käyttöönotto tapahtuu vaihe vaiheelta
 opasta seuraten (tehtävätyypit, käyttäjät, asiakkaat, sopimukset...).
@@ -1274,7 +1482,7 @@ Tili:     $($result.Email) (Johto)$(if ($result.Updated) { "`n`nHUIPPU: aiempi p
                 $c.lblDoneInfo.Text = @"
 Sijainti:  $($result.Dir)
 Osoite:    $($result.Url)
-Tili:      $($result.Email) (Johto)$(if ($result.Updated) { "`n`nHUIPPU: aiempi asennus paivitettiin - vanha data sailytettiin." })
+Tili:      $($result.Email) (Johto)$(if ($result.Updated) { "`n`nHUOM: aiempi asennus päivitettiin - vanha data säilytettiin." })$(if ($result.Talous) { "`n`nTalousmoduuli: asennettu ($($result.TalousViesti)) - pikakuvake Huoltokello-Talous. Automaattinen kuittausyhteys otetaan päälle Talouksien Rekisterit > Huoltokello-yhteys -sivulla." })
 "@
                 if ($result.Lan) {
                     try {
@@ -1362,6 +1570,12 @@ Tili:      $($result.Email) (Johto)$(if ($result.Updated) { "`n`nHUIPPU: aiempi 
     if (Test-Path (Join-Path (Join-Path $env:LOCALAPPDATA 'Huoltokello') 'AppData\huoltokello.db')) {
         $c.ExistingWarn.Visibility = 'Visible'
     }
+    # v2.8.0: talous-moduuli valitutaan oletuksena, jos zip on paketissa
+    if (Test-Path $TalousZip) {
+        $c.chkTalous.IsChecked = $true
+    } else {
+        $c.chkTalous.IsChecked = $false
+    }
     Show-Page 0
     $win.ShowDialog() | Out-Null
 }
@@ -1374,7 +1588,7 @@ function Test-HkSelfTest {
     $out += ('Pakettikansio: ' + $PackageDir)
     $out += ''
     $out += '1) Paketin tiedostot:'
-    foreach ($p in @($AppZip, $AzureOsat, $PalvelinOsat, (Join-Path $PackageDir 'assets\huoltokello.ico'))) {
+    foreach ($p in @($AppZip, $AzureOsat, $PalvelinOsat, $TalousZip, (Join-Path $PackageDir 'assets\huoltokello.ico'))) {
         $fileOk = Test-Path $p
         $out += ('   [{0}] {1}' -f ($(if ($fileOk) { 'OK' } else { 'PUUTTUU' })), (Split-Path -Leaf $p))
         if (-not $fileOk) { $ok = $false }
@@ -1437,7 +1651,19 @@ if ($Silent) {
     $missing = @()
     if (-not $AdminName) { $missing += '-AdminName' }
     if (-not $AdminEmail) { $missing += '-AdminEmail' }
-    if (-not $AdminPassword) { $missing += '-AdminPassword' }
+    # v2.7.4: salasana ei nakyy komentorivilla jatkossa - SecureString,
+    # ymparistomuuttuja HKA_ADMIN_PASSWORD tai (varoituksella) vanha -AdminPassword
+    $cliPw = $null
+    if ($AdminPasswordSecure) { $cliPw = ConvertTo-PlainText -SecurePassword $AdminPasswordSecure }
+    elseif ($env:HKA_ADMIN_PASSWORD) {
+        $cliPw = [string]$env:HKA_ADMIN_PASSWORD
+        Remove-Item Env:\HKA_ADMIN_PASSWORD -Force -ErrorAction SilentlyContinue
+    }
+    elseif ($AdminPassword) {
+        $cliPw = $AdminPassword
+        Write-Warning 'Admin-salasana annettiin selkokielisena komentorivilla (-AdminPassword) - se nakyi prosessilistauksissa. Suositus: -AdminPasswordSecure tai ymparistomuuttuja HKA_ADMIN_PASSWORD.'
+    }
+    if (-not $AdminPasswordSecure -and -not $AdminPassword -and -not $env:HKA_ADMIN_PASSWORD) { $missing += '-AdminPassword (tai -AdminPasswordSecure / HKA_ADMIN_PASSWORD)' }
     if ($m -eq 'azure') {
         if (-not $AzName) { $missing += '-AzName' }
     } elseif ($m -eq 'serveri') {
@@ -1450,7 +1676,7 @@ if ($Silent) {
         Write-Host ('Puuttuvat: ' + ($missing -join ', '))
         exit 2
     }
-    $pwErr = Test-HkPasswordRule $AdminPassword
+    $pwErr = Test-HkPasswordRule $cliPw
     if ($pwErr) { Write-Host "Salasanavaatimus ei taydy: $pwErr" -ForegroundColor Red; exit 2 }
     if (-not (Test-Email $AdminEmail)) { Write-Host "Kelvoton sahkopostiosoite: $AdminEmail" -ForegroundColor Red; exit 2 }
 
@@ -1469,7 +1695,7 @@ if ($Silent) {
         AdminName     = $AdminName
         AdminEmail    = $AdminEmail
         AdminTitle    = if ($AdminTitle) { $AdminTitle } else { 'Vastaava' }
-        AdminPassword = $AdminPassword
+        AdminPassword = $cliPw
         OpenBrowser   = (-not $NoBrowser)
         NoShortcuts   = [bool]$NoShortcuts
         Silent        = $true
@@ -1497,9 +1723,16 @@ if ($Silent) {
         }
     } else {
         if (-not $InstallDir) { $InstallDir = Join-Path $env:LOCALAPPDATA 'Huoltokello' }
+        # v2.7.4: hylkaa vaaralliset kohdekansiot myos hiljaisessa asennuksessa
+        try { $InstallDir = Assert-HkSafeInstallDir -Path $InstallDir }
+        catch { Write-Host $_.Exception.Message -ForegroundColor Red; exit 2 }
         if (-not (Test-PortFree $Port)) { Write-Host "Portti $Port on varattu - valitse toinen (-Port)." -ForegroundColor Red; exit 2 }
+        if ($AsennaTalous -and -not (Test-Path $TalousZip)) {
+            Write-Warning 'Huoltokello-Talous-1.1.0.zip puuttuu paketista - talousmoduulia ei asenneta.'
+        }
         $s = $baseAdmin + @{
             Mode              = 'paikallinen'
+            InstallTalous     = [bool]$AsennaTalous
             InstallDir        = $InstallDir
             Port              = $Port
             DesktopShortcut   = (-not $NoShortcuts)
@@ -1521,6 +1754,7 @@ if ($Silent) {
         elseif ($r.Path) { Write-Host ('  Kansio : ' + $r.Path + ' (palvelimella)') }
         elseif ($r.AppName) { Write-Host ('  App    : ' + $r.AppName) }
         Write-Host ('  Tili   : ' + $r.Email + ' (Johto)')
+        if ($r.Talous) { Write-Host ('  Talous : ' + $r.TalousUrl + ' - ' + $r.TalousViesti) }
         Write-Host '  Ohjeet : Ohjeet\Kayttoonotto-Opas.html'
         exit 0
     } catch {

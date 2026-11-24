@@ -28,7 +28,7 @@ powershell -ExecutionPolicy Bypass -STA -File .\Asenna-Huoltokello-Multa.ps1
 |---|---|---|
 | 1 | Tervetuloa | yleiskuva asennuksesta |
 | 2 | Kansio ja portti | asennuskansio (oletus `%LOCALAPPDATA%\Huoltokello`) ja portti (oletus 8088). Velho tarkistaa, ettei portti ole varattu ja ettei kansiossa ole estäviä oikeuksia |
-| 3 | Ylläpitotili | luodaan ensimmäinen Johto-tili: nimi (esim. "Matti Meikäläinen"), sähköposti = kirjautumistunnus, salasana (vähintään 8 merkkiä, iso kirjain ja numero, esim. "Kello2026"). **TILI TULEE MUISTAA** — salasanaa ei voi nollata sovelluksesta; jos se unohtuu: `Tyokalut/Luo-YllapitajaTili.ps1` (uudella sähköpostilla!) |
+| 3 | Ylläpitotili | luodaan ensimmäinen Johto-tili: nimi (esim. "Matti Meikäläinen"), sähköposti = kirjautumistunnus, salasana (vähintään **12 merkkiä**, iso kirjain ja numero, esim. "Kello2026Huolto"). **TILI TULEE MUISTAA** — salasanaa ei voi nollata sovelluksesta; jos se unohtuu: `Tyokalut/Luo-YllapitajaTili.ps1` (uudella sähköpostilla!) |
 | 4 | Valinnat | työpöytä- ja valikkopikakuvakkeet; käynnistys automaattisesti kirjautumisen yhteydessä (suositeltu); lähiverkkokäyttö (OLETUS PÄÄLLÄ): muut koneet JA puhelimet samaa dataa reaaliajassa (SignalR) — vaatii palomuurikysymyksen, valitse "Salli"; muutettavissa jälkikäteen Asetukset-sivulta tai `PuhelinKaytto.ps1` |
 | 5 | Yhteenveto | tarkista tiedot ja paina "Asenna" |
 | 6 | Asennus | 11 vaiheita, edistymispalkki (1–3 min) |
@@ -42,10 +42,14 @@ powershell -ExecutionPolicy Bypass -STA -File .\Asenna-Huoltokello-Multa.ps1
 powershell -ExecutionPolicy Bypass -File .\Asenna-Huoltokello-Multa.ps1 `
   -Silent -InstallDir "C:\Huoltokello" -Port 8088 `
   -AdminName "Matti Meikäläinen" -AdminEmail "matti@yritys.fi" `
-  -AdminPassword "Kello2026" -HyvaksyLuvat
+  -AdminPassword "Kello2026Huolto" -HyvaksyLuvat
 ```
 
-Lisävalinnat: `-AutoStart` · `-PhoneAccess` · `-NoShortcuts` (ei pikakuvakkeita) · `-NoBrowser` (älä avaa selainta asennuksen jälkeen).## 7. Tyokalut-kansio (asennuskansion Tyokalut-alikansio)
+Lisävalinnat: `-AutoStart` · `-PhoneAccess` · `-NoShortcuts` (ei pikakuvakkeita) · `-NoBrowser` (älä avaa selainta asennuksen jälkeen).
+
+Salasanan voi antaa suojattuna: `-AdminPasswordSecure` (SecureString, esim. `(Read-Host -AsSecureString)`) tai ympäristömuuttujana `HKA_ADMIN_PASSWORD` — kumpikaan ei jää komentorivihistoriaan. Suora `-AdminPassword` toimii yhä, mutta varoittaa. Salasanasääntö: vähintään 12 merkkiä, suuraakkonen ja numero.
+
+## 7. Tyokalut-kansio (asennuskansion Tyokalut-alikansio)
 
 Aja skriptit kaksoisnapsauttamalla tai PowerShellista:
 

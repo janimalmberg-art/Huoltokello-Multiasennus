@@ -4,7 +4,7 @@ Työkalut ovat asennuskansion `Tyokalut`-alikansiosta — aja ne sieltä kaksois
 
 ## Tyokalut/_yhteinen.ps1 — yhteinen kirjasto
 
-Muut työkalut lataavat tämän: antaa yleiset funktiot (`Get-HkInstallDir`, `Get-HkPort`, `Test-HkHealth`, `Stop-HkApp` ym.). Sitä ei ajeta suoraan.
+Muut työkalut lataavat tämän: antaa yleiset funktiot (`Get-HkInstallDir`, `Get-HkPort`, `Test-HkHealth`, `Stop-HkApp` ym.) sekä turva-avustajat: `Expand-HkZipSafe` (zip-purku, jossa zip slip -esto), `Protect-HkSecretFile` (salaisuustiedoston ACL vain omalle käyttäjälle/SYSTEM, SID-pohjainen) ja `Assert-HkSafeInstallDir`. Sitä ei ajeta suoraan.
 
 ## Päivittäiseen käyttöön
 
@@ -21,6 +21,7 @@ Muut työkalut lataavat tämän: antaa yleiset funktiot (`Get-HkInstallDir`, `Ge
 |---|---|
 | `Luo-YllapitajaTili.ps1` | ohjattu uuden **Johto-tilin** luonti: kirjoittaa `AppData\first-admin.json`, jonka sovellus lukee seuraavassa käynnistyksessä. Käytä esim. kun salasana unohtui — käytä **UUTTA sähköpostia** (vanhaa ei voi ylikirjoittaa) |
 | `Luo-Kayttaja.ps1` | ohjattu käyttäjätunnusten luonti sovelluksen kautta (kirjautuu Johto-tilillä) |
+| `Vaihda-Salasana.ps1` | **unohtuneen salasanan vaihto** olemassa olevalle tunnukselle: luo tilapäisen apu-Johto-tilin, vaihtaa tunnuksen salasanan sovelluksen omalla Hallinta-lomakkeella (muut kentät säilyvät), varmistaa vaihdon kirjautumalla ja deaktivoi aputilin. Tietokantaan ei kirjoiteta suoraan. Apuskripti `_lue-tunnukset.ps1` (ajetaan pwsh:lla) listaa olemassa olevat tunnukset — ei ajeta suoraan |
 
 ## Verkkokäyttö
 
@@ -33,8 +34,8 @@ Muut työkalut lataavat tämän: antaa yleiset funktiot (`Get-HkInstallDir`, `Ge
 | Työkalu | Mitä se tekee |
 |---|---|
 | `Paivita.ps1` | päivittää ohjelman uudella `app.zip`-paketilla — data (tietokanta, liitteet, asetukset) **säästyy**; `SeedDemoData` pysyy pois |
-| `Poista-Asennus.ps1` | poistaa asennuksen komentoriviltä; varmistaa ensin. Parametri `-InstallDir` osoittaa asennuskansion suoraan (pakettikansiosta ajettuna tarpeen) |
-| `Poista-Asennus-GUI.ps1` | **graafinen poisto** (suositellut menetelmä): valinta, että poistetaanko vai säilytetäänkö data varmuuskopion kera |
+| `Poista-Asennus.ps1` | poistaa asennuksen komentoriviltä; varmistaa ensin. Parametri `-InstallDir` osoittaa asennuskansion suoraan (pakettikansiosta ajettuna tarpeen). Varataan: jos varmuuskopiointi epäonnistuu, asennuskansiota ei poisteta (data ei katoa) |
+| `Poista-Asennus-GUI.ps1` | **graafinen poisto** (suositellut menetelmä): valinta, että poistetaanko vai säilytetäänkö data varmuuskopion kera. Varmuuskopiointi epäonnistuu → poisto perutaan |
 | `Korjaa-Kuvakkeet.ps1` | korjaa jo asennetun version pikakuvakkeet ilman uudelleenasennusta ja päivittää Windowsin kuvakevälimuistin |
 | `Luo-Kuvakkeet.ps1` | piirtää paketin omat monikokoiset kuvakkeet (16–256 px): Huoltokello = toimistokone + kello, Huoltokello-Ohjeet = lamppu |
 

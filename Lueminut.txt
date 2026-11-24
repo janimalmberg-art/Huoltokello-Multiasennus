@@ -3,8 +3,8 @@ HUOLTOKELLO - MULTIASENNUKSEN PAKETTI (Lueminut)
 ================================================================
 
 Tama paketti asentaa Huoltokello-ohjelman (Kiinteistonhuollon
-taktinen tyonhallinta) kolmella tavalla. Avaa asennus siirtamalla
-tama KOKO kansio sille koneelle, jolta asennus ajetaan, ja
+taktinen tyonhallinta, versio 2.8.0) kolmella tavalla. Avaa asennus
+siirtamalla tama KOKO kansio sille koneelle, jolta asennus ajetaan, ja
 kaynnistamalla:
 
     Asenna.cmd            <- graafinen asennusvelho (suositus)
@@ -13,6 +13,21 @@ Velho kysyy asennustavan ja kaikki tarvittavat tiedot, nayttaa
 jokaisen vaiheen edistymisen ja pyytaa LUVALLE-sivulla luvan
 siihen, etta skripti saa toimia kayttajan puolesta, ennen kuin
 yhtaan muutosta tehdaan.
+
+
+VALINNAINEN TALOUSOSIO (Huoltokello-Talous)
+----------------------------------------------------------------
+
+Paketissa on myos Huoltokello-Talous-1.1.0.zip - rahoituksen,
+laskutuksen ja palkkojen hallintamoduuli. Paikallisessa
+asennuksessa velho valitsee moduulin oletuksena ("Asenna samalla
+Huoltokello-Talous -rahoitusmoduuli"). Valittuna velho purkaa
+moduulin, paivittaa talouskannan, kyttaa Huoltokello-sillan
+(Talous lukee Huoltokellon tietokantaa vain lukutilassa) ja tekee
+kaynnistyskuvakkeet. Talous kayntyy omalla kuvakkeellaan ja palvelee
+osoitteessa http://127.0.0.1:8090. Jos talousosion asennus epaonnistuu,
+Huoltokello asennetaan silti onnistuneesti ja Talous voi asentaa
+myohemmin talousosion Asenna-Talous.cmd-skriptilla.
 
 
 ASENNUSTAVAT
@@ -68,8 +83,11 @@ Paikallinen:
     Asenna-Huoltokello-Multa.ps1 -Silent -Mode paikallinen
     -InstallDir "C:\Huoltokello" -Port 8088
     -AdminName "Maija Meikalainen" -AdminEmail "maija@firma.fi"
-    -AdminPassword "Salasana1" -HyvaksyLuvat
+    -AdminPassword "Kello2026Huolto" -HyvaksyLuvat
   Valinnaiset: -AutoStart -PhoneAccess -NoShortcuts -NoBrowser
+  Salasana suojattuna: -AdminPasswordSecure (SecureString) tai
+    ymparistomuuttuja HKA_ADMIN_PASSWORD; vahintaan 12 merkcia,
+    iso kirjain ja numero
 
 Azure:
   ... -Silent -Mode azure -AzName "firma-huoltokello"

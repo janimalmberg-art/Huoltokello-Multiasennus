@@ -27,13 +27,10 @@ def banner():
 
 def _sslctx():
     if CP["ctx"] is None:
-        try:
-            r = rq.urlopen(rq.Request(f"https://{HOST}:2083"), timeout=8)
-            CP["ctx"] = ssl.create_default_context()
-        except Exception:
-            CP["ctx"] = ssl._create_unverified_context()
-            print("  (TLS-varmennusta ei vahvistettu — palvelimen itseallekirjoitettu sertifikaatti?)")
-        # sulje mahdollinen socket urllibin ulkopuolelta ei tarvita; ctx vain luotiin
+        # v2.7.4: varmenne tarkistetaan AINA — itseallekirjoitetulle palvelimelle ei
+        # enaa avata tarkistamatonta yhteytta, joska sen yli lahetaan tunnus/salasana.
+        # Jos varmennus ei vahisty, yhteys hylataan (fail-closed) eika tunnuksia laheta.
+        CP["ctx"] = ssl.create_default_context()
     return CP["ctx"]
 
 def uapi(module, func, params=None, api="execute"):
@@ -153,7 +150,8 @@ def smtp_testi(laatikko=None):
     msg = ("From: %s\r\nTo: %s\r\nSubject: Testi %s\r\n\r\n"
            "Hei! Tama on automaattinen kokoonpanotesti.\r\n" % (src, GMAIL, secrets.token_hex(3)))
     try:
-        s = smtplib.SMTP_SSL(HOST, 465, timeout=25)
+        # v2.7.4: varmennettu TLS aina (ei _create_stdlib_context-oletusta)
+        s = smtplib.SMTP_SSL(HOST, 465, timeout=25, context=ssl.create_default_context())
         s.login(src, laatikko["pw"])
         s.sendmail(src, [GMAIL], msg)   # testi suoraan Gmailiin
         s.sendmail(src, [src], msg)     # forwarder-testi: itselleen -> kulkeutuu Gmailiin

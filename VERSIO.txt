@@ -1,5 +1,46 @@
 HUOLTOKELLO - VERSIOLOKI
 ========================
+v2.8.1 (24.11.2026)
+-------------------
+- SOVELLUS app.zip -> 2.8.0 (velhon versionumero 2.8.1, Sovellukset-lista seuraa
+  $WizardVersion-muuttujaa):
+  * KUVAN MUKAINEN ULKOASU: tumma sivupalkki ryhmineen (ARKI: Etusivu, Vuosikello,
+    Tehtavat, Skannaa, Viestit | MYYNTI: Laskutus, Sopimukset, Raportit |
+    HALLINTA: Asiakkaat, Kohteet, Paivitykset, Rekisterit, Asetukset) +
+    Salasana/Kirjaudu ulos sivupalkin alaosassa; ylapalkissa ryhma/sivu-polku,
+    paivachip, ilmoitus- ja teemapainikkeet kayttajakortilla.
+  * SUORITUSTASON MITTARI etusivulle: rengaskaavio neljalla sektorilla ja
+    lukumaarilla — myohassa (punainen), kasittelyssa (keltainen), valmiit
+    (vihrea), uudet tyonjohdon viela jakamatta (sinainen); yhteensa keskella.
+  * RAPORTOINTIKOKOONTAI: "Raportoi Excel" -painike etusivun mittarissa muodostaa
+    .xlsx-kokoontain (Yhteenveto + Tehtavat + Myohassa) ja tallentaa sen
+    TYOPOYDALLE paikallisessa asennuksessa; Azuressa selaimen latauskansioon.
+- Asennusvelho ei vaadi muutoksia: uusi app.zip asennetaan samaan tapaan
+  (Paivitys-tyokalu Tai velhon paivitys dataa sailyttaen).
+v2.8.0 (19.11.2026)
+-------------------
+- TALOUSMODUULI PAKETTIIN (valinnainen): paketissa on nyt Huoltokello-Talous-1.1.0.zip
+  (rahoitus-, laskutus- ja palkkamoduuli). Paikallisen asennuksen velho tarjoaa
+  "Asenna samalla Huoltokello-Talous -rahoitusmoduuli" -valinnan (oletuksena valittu,
+  kun talousosa on paketissa). Valittuna velho:
+  - purkaa moduulin kansioon %LOCALAPPDATA%\Huoltokello-Talous\app — aiempi data
+    (Data\talous.db, varmuuskopiot, lokit) säilytetaan; 1.0.1-kannan migraatio
+    ajetaan alusta-komennolla (user_version -> 2)
+  - kytkee Huoltokello-sillan: talouskantaan asetetaan hk.db_path ja ajetaan
+    huoltokello-synk --esikatselu varmistamaan yhteys (Talous lukee Huoltokellon
+    tietokantaa vain lukutilassa; automaattinen synkronointi valitaan Talouksen
+    Rekisterit > Huoltokello-yhteys -sivulla) 
+  - tekee Kaynnista-Talous.cmd -kaynnistajan + tyopoytan ja valikon
+    pikakuvakkeet; talous palvelee osoitteessa http://127.0.0.1:8090
+  - asentaa Python 3.12 wingetilla kayttajalle, jos Python 3.10+ puuttuu
+  - pysayttaa yhtjakaisessa kaynnissa olevan talousserverin ennen paivitysta
+  - talousosion epaonnistus EI kaada Huoltokellon asennusta (Huoltokello jattetaan
+    kayntiin, talous voi asentaa myohemmin zipin Asenna-Talous.cmd-skriptilla)
+- Uusi lippu -AsennaTalous hiljaisessa asennuksessa (powershell -File ... -Silent
+  -Mode paikallinen ... -AsennaTalous -HyvaksyLuvat).
+- Itsestesti (-SelfTest) tarkistaa talousosan Huoltokello-Talous-1.1.0.zip.
+- Velhon versionumero 2.7.4 -> 2.8.0 (uudet vaiheet: talous, talous-kanta,
+  talous-pikakuva, talous-valmis).
 v2.7.4 (16.11.2026)
 -------------------
 - TIETOTURVAKATSELMOINTI (asennuspaketti + Tyokalut, sovellus ei muuttunut):
@@ -29,6 +70,12 @@ v2.7.4 (16.11.2026)
     COMPlus_ReadyToRun=0. Väliaikainen korjaus — oikea linux-x64- tai framework-
     dependent-julkaisu tehtävä ennen seuraavaa Azure-julkaisua.
 - Velhon versionumero 2.7.3 -> 2.7.4.
+- Uusi Tyokalut\Vaihda-Salasana.ps1: unohtuneen salasanan vaihto paikalliselle asennukselle.
+  Ohjattu tyokalu luo tilapaisen apu-Johto-tilin (first-admin.json, ACL suojattu), kirjautuu
+  silla ja vaihtaa valitun tunnuksen salasanan sovelluksen omalla Hallinta-lomakkeella
+  (tietokantaan ei kirjoiteta suoraan, muut kentat sailytetaan); varmistaa vaihdon
+  kirjautumalla, deaktivoi aputilin ja poistaa first-admin.jsonin. Apuskripti
+  Tyokalut\_lue-tunnukset.ps1 (ajetaan pwsh:lla) listaa DB:n tunnukset tyokalulle.
 
 
 

@@ -114,9 +114,9 @@ function New-HkShortcut {
 
 function Test-HkPassword {
     param([string]$Password)
-    # Samat saannot kuin sovelluksessa: min 8 merkkiä, suuraakkonen ja numero
+    # Samat saannot kuin sovelluksessa: min 12 merkkiä, suuraakkonen ja numero
     if ([string]::IsNullOrWhiteSpace($Password)) { return 'Salasana vaaditaan.' }
-    if ($Password.Length -lt 8) { return 'Salasanan on oltava vahintaan 8 merkkiä pitkä.' }
+    if ($Password.Length -lt 12) { return 'Salasanan on oltava vahintaan 12 merkkiä pitkä.' }
     if ($Password -notmatch '[A-ZÄÖÜ]') { return 'Salasanassa on oltava vahintaan yksi suuraakkonen.' }
     if ($Password -notmatch '\d') { return 'Salasanassa on oltava vahintaan yksi numero.' }
     return $null
@@ -147,11 +147,82 @@ function New-HkVapidKeys {
 }
 
 function Protect-HkSecretFile {
-    # v2.4.1: salatiedoston ACL rajataan nykyiseen käyttäjään + SYSTEM.
+    # v2.7.4: ACL rajataan kayttajan SIDILLA (ei USERDOMAIN\USERNIME-nimella —
+    # nimi-rajauksessa epaonnistuu hiljaa mm. Entra ID -tileilla ja lokalisoituissa
+    # Windowsissa; SID on aina yksilainen).
     param([string]$Path)
     try {
-        $id = "$env:USERDOMAIN\$env:USERNAME"
-        $null = & icacls $Path /inheritance:r /grant:r "$($id):F" /grant:r "SYSTEM:F"
-        return ($LASTEXITCODE -eq 0)
+        $sid = ([System.Security.Principal.WindowsIdentity]::GetCurrent()).User.Value
+        $null = & icacls $Path /inheritance:r /grant:r ("*$($sid):F") /grant:r "*S-1-5-18:F"
+        if ($LASTEXITCODE -ne 0) {
+            # Varalle: yrita jarjestelman SIDilla ilman perittyja oikeuksia
+            $null = & icacls $Path /inheritance:r /grant:r "*S-1-5-18:F"
+            return ($LASTEXITCODE -eq 0)
+        }
+        return $true
     } catch { return $false }
+}
+
+function Assert-HkSafeInstallDir {
+    # v2.7.4: estaa asennuksen/poiston suunnan vaarallisille, "jokaisen
+    # koneen" kansioille (kotikansio, Windows, Program Files, Temp, Tyopoyta...).
+    param([string]$Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) { throw 'Asennuskansio puuttuu.' }
+    $full = [System.IO.Path]::GetFullPath($Path).TrimEnd('\')
+    $banned = @()
+    foreach ($p in @($env:USERPROFILE, $env:SystemRoot, $env:TEMP, $env:TMP,
+                     $env:ProgramFiles, ${env:ProgramFiles(x86)},
+                     [Environment]::GetFolderPath('Desktop'),
+                     [Environment]::GetFolderPath('MyDocuments'))) {
+        if ($p) { $banned += ([System.IO.Path]::GetFullPath($p).TrimEnd('\')) }
+    }
+    foreach ($b in $banned) {
+        if ($full -ieq $b) { throw "Vaarallinen asennuskansio: $full. Valitse oma kansio esim. C:\Huoltokello tai $env:LOCALAPPDATA\Huoltokello." }
+    }
+    if ($full -ieq (Join-Path $env:SystemRoot 'System32')) {
+        throw "Vaarallinen asennuskansio: $full."
+    }
+    return $full
+}
+
+function Expand-HkZipSafe {
+    # v2.7.4: zip-purku ilman zip slip -hyok kaysta: jokainen polku tarkistetaan,
+    # etta se jaaka kohdekansioon (ei ehdottomia polkuja, ei ..-viittauksia).
+    param(
+        [Parameter(Mandatory)] [string]$ZipPath,
+        [Parameter(Mandatory)] [string]$Destination
+    )
+    Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue | Out-Null
+    $destFull = [System.IO.Path]::GetFullPath($Destination).TrimEnd('\')
+    if (-not (Test-Path -LiteralPath $destFull)) {
+        New-Item -ItemType Directory -Path $destFull -Force | Out-Null
+    }
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
+    try {
+        foreach ($entry in $archive.Entries) {
+            if ([string]::IsNullOrEmpty($entry.FullName)) { continue }
+            $rel = $entry.FullName.Replace('/', '\')
+            if (($rel -match '^[A-Za-z]:') -or ($rel -match '^\\') -or ($rel -match '^\\\\')) {
+                throw "Zip-slip -esto: ehdoton polku zip-paketissa: $($entry.FullName)"
+            }
+            $target = [System.IO.Path]::GetFullPath((Join-Path $destFull $rel))
+            if (($target.TrimEnd('\') + '\') -notlike ($destFull.TrimEnd('\') + '\*') -and
+                $target.TrimEnd('\') -ine $destFull.TrimEnd('\')) {
+                throw "Zip-slip -esto: polku ulos kohdekansiosta: $($entry.FullName)"
+            }
+            if ($entry.FullName.EndsWith('/') -or $entry.FullName.EndsWith('\')) {
+                if (-not (Test-Path -LiteralPath $target)) {
+                    New-Item -ItemType Directory -Path $target -Force | Out-Null
+                }
+                continue
+            }
+            $tgtDir = Split-Path -Parent $target
+            if ($tgtDir -and -not (Test-Path -LiteralPath $tgtDir)) {
+                New-Item -ItemType Directory -Path $tgtDir -Force | Out-Null
+            }
+            [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $true)
+        }
+    } finally {
+        $archive.Dispose()
+    }
 }

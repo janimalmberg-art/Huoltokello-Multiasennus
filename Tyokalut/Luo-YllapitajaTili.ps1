@@ -50,6 +50,8 @@ $jsonPath = Join-Path $appData 'first-admin.json'
     Title    = $title
     Password = $pw1
 } | ConvertTo-Json | Set-Content -Path $jsonPath -Encoding UTF8
+# v2.7.4: ensimmaisen yllapitajan salasana sisaltava tiedosto rajataan vain kayttajalle + SYSTEM
+$null = Protect-HkSecretFile -Path $jsonPath
 
 Write-Host ""
 Write-Host "Tilin tiedot kirjoitettu. Kaynnistetaan Huoltokello..." -ForegroundColor Cyan
