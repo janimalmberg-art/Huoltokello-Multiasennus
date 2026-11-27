@@ -58,6 +58,8 @@ param(
     [switch]$ServerNotDomain,
     # Annapa skriptille lupa toimia puolestasi (vaaditaan hiljaisessa asennuksessa)
     [switch]$HyvaksyLuvat,
+    [string]$LisenssiAvain,
+    [string]$LisenssiKoodi,
     [switch]$SelfTest
 )
 $ErrorActionPreference = 'Stop'
@@ -68,19 +70,24 @@ $OhjeIconFile = Join-Path $PackageDir 'assets\huoltokello-ohjeet.ico'
 $AzureOsat    = Join-Path $PackageDir 'Osa-Azure.ps1'
 $PalvelinOsat = Join-Path $PackageDir 'Osa-Palvelin.ps1'
 # v2.8.0: talousmoduuli (Huoltokello-Talous) - valinnainen osa paikallista asennusta
-# v2.8.2: pakettiin tulee kokeiluversio (Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip)
-$TalousZip   = Join-Path $PackageDir 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip'
+# v2.9.0: pakettiin tulee kokeiluversio (Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip)
+$TalousZip   = Join-Path $PackageDir 'Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip'
 $TalousRoot  = Join-Path $env:LOCALAPPDATA 'Huoltokello-Talous'
 $TalousApp   = Join-Path $TalousRoot 'app'
 $TalousData  = Join-Path $TalousRoot 'Data'
 $TalousPort  = 8090
 $DefaultPort = 8088
+# v2.9.0: lisenssimooottori velholle (Konekoodi-naytto + paikallinen aktivointi)
+if (Test-Path (Join-Path $PackageDir 'Tyokalut\_lisenssi.ps1')) {
+    . (Join-Path $PackageDir 'Tyokalut\_lisenssi.ps1')
+}
 # v2.8.2: velhon versio ( näkyy Sovellukset-listassa ja VERSIO.txt:ssa;
 # päivitä tässä, kun sovellus tai velho muuttuu)
-$WizardVersion = '2.8.2'
-# v2.8.2 kokeiluversio: Huoltokello toimii 90 paivan kokeilujaksolla
-# (Tyokalut\_kokeilu.ps1 -tarkistus kaynnistyksessa), talousmoduuli on
-# kokeiluversio Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip.
+$WizardVersion = '2.9.0'
+# v2.9.0 kokeiluversio: Huoltokello toimii 90 paivan kokeilujaksolla
+# (Tyokalut\_kokeilu.ps1 -tarkistus kaynnistyksessa; voimassa oleva lisenssi
+#  ohittaa kokeilujakson, Tyokalut\_lisenssi.ps1), talousmoduuli on
+# kokeiluversio Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip.
 # v2.8.1: asennettavan sovelluksen versio (app.zip, 2.8.0):
 #   * kuvan mukainen ulkoasu (tumma sivupalkki + yläpalkki),
 #   * etusivun suoritustason mittari (myöhässä/käsittelyssä/valmiit/uudet),
@@ -391,6 +398,21 @@ function Invoke-HkInstall {
         & $OnStep 'tili' 'ok' ("Johto-tili luodaan ensimmaisella kaynnistyksella: " + $s.AdminEmail)
     }
 
+    # --- 4b) Lisenssin aktivointi (valinnainen; vain paikallinen asennus) ---
+    if ($s.LisAvain -and $s.LisKoodi) {
+        & $OnStep 'lisenssi' 'start' ''
+        if (Get-Command Register-HkLisAktivointi -ErrorAction SilentlyContinue) {
+            $lisTulos = Register-HkLisAktivointi -Avain $s.LisAvain -Koodi $s.LisKoodi
+            if ($lisTulos.Ok) {
+                & $OnStep 'lisenssi' 'ok' ("{0} (taso {1}) aktivoitu talle koneelle - kokeilurajoitukset ohitettu" -f $lisTulos.Nimi, $lisTulos.Taso)
+            } else {
+                & $OnStep 'lisenssi' 'info' ("Lisenssia ei aktivoitu: {0}. Asennus jatkuu 90 paivan kokeilujaksolla; aktivointi onnistuu myohemmin paattymisikkunassa tai Huoltokello.ps1 -Lisenssi." -f $lisTulos.Virhe)
+            }
+        } else {
+            & $OnStep 'lisenssi' 'info' 'Tyokalut\_lisenssi.ps1 ei saatavilla - aktivointi ohjelmassa myohemmin.'
+        }
+    }
+
     # --- 5) Kaynnistin, työkalut ja ohjeet ---
     & $OnStep 'tyokalut' 'start' ''
     $bindDefault = if ($s.LanAccess) { '0.0.0.0' } else { '127.0.0.1' }
@@ -403,7 +425,9 @@ param([switch]`$NoBrowser)
 `$Exe = Join-Path `$InstallDir 'KiinteistoHuolto.Web.exe'
 `$Url = "http://127.0.0.1:`$Port"
 
-# KOKEILUVERSIO: tarkista 90 paivan kokeilujakso ennen kaynnistysta
+# KOKEILUVERSIO + LISENSSI: lisenssi ensin, sen jalkeen 90 paivan kokeilujakso
+`$LisSkripti = Join-Path `$InstallDir 'Tyokalut\_lisenssi.ps1'
+if (Test-Path `$LisSkripti) { . `$LisSkripti }
 `$KokeiluSkripti = Join-Path `$InstallDir 'Tyokalut\_kokeilu.ps1'
 if (Test-Path `$KokeiluSkripti) {
     . `$KokeiluSkripti
@@ -836,9 +860,10 @@ $script:StepLabels = @{
     'talous-kanta'   = 'Talous: tietokanta ja Huoltokello-yhteys'
     'talous-pikakuva' = 'Talous: käynnistin ja pikakuvakkeet'
     'talous-valmis'  = 'Talous: valmistelun varmistus'
+    lisenssi         = 'Lisenssin aktivointi (valinnainen)'
     valmis         = 'Valmis'
 }
-$script:StepOrder = @('kansio','tiedostot','asetukset','tili','tyokalut','pikakuvakkeet','rekisteri','autostart','palomuuri','kaynnistys','varmistus','talous','talous-kanta','talous-pikakuva','talous-valmis')
+$script:StepOrder = @('kansio','tiedostot','asetukset','tili','lisenssi','tyokalut','pikakuvakkeet','rekisteri','autostart','palomuuri','kaynnistys','varmistus','talous','talous-kanta','talous-pikakuva','talous-valmis')
 
 $script:AzureStepLabels = @{
     'azure-cli'       = 'Azure CLI -työkalu'
@@ -1038,6 +1063,30 @@ function Show-HkWizard {
         <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" Foreground="#6B7280"
                    Text="Tietoturva: salasanat kirjoitetaan vain muistiin asennuksen ajaksi; VAPID-yksityisavain tallennetaan suojattuun tiedostoon (paikallinen/palvelin) tai Azure-ympäristöasetuksiin; asetustiedostoihin voi lukea vain sinä (paikallinen) tai palvelimen ylläpitäjät (palvelin). "/>
       </StackPanel>
+      <StackPanel x:Name="PageLisenssi" Visibility="Collapsed">
+        <TextBlock Text="Lisenssi (valinnainen)" FontSize="19" FontWeight="Bold" Margin="0,0,0,8"/>
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10" Foreground="#374151"
+                   Text="Ilman lisenssiä ohjelma toimii 90 päivän kokeilujaksolla. Jos sinulla on kehittäjän myöntämä lisenssiavain (25 numeroa, XXXXX-XXXXX-XXXXX-XXXXX-XXXXX) ja tämän koneen aktivointikoodi (12 numeroa), voit aktivoida sen jo asennuksen yhteydessä."/>
+        <Border Background="#EFEDFD" CornerRadius="6" Padding="12,10">
+          <StackPanel>
+            <TextBlock TextWrapping="Wrap" FontWeight="SemiBold"
+                       Text="Tämän koneen konekoodi (lähetä kehittäjälle aktivointikoodia varten):"/>
+            <TextBox x:Name="txtLisKone" IsReadOnly="True" Background="#F8FAFC" HorizontalAlignment="Left" MinWidth="200" FontFamily="Consolas"/>
+            <Grid Margin="0,12,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Lisenssiavain:"/>
+              <TextBox x:Name="txtLisAvain" Grid.Row="0" Grid.Column="1" FontFamily="Consolas" Margin="0,0,12,6"/>
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Aktivointikoodi:"/>
+              <TextBox x:Name="txtLisKoodi" Grid.Row="1" Grid.Column="1" FontFamily="Consolas" Margin="0,0,12,0"/>
+            </Grid>
+            <CheckBox x:Name="chkLisenssi" Content="Aktivoin lisenssin nyt (paikallinen asennus)" IsChecked="False" Margin="0,10,0,0" FontWeight="SemiBold"/>
+          </StackPanel>
+        </Border>
+        <TextBlock x:Name="lblLisInfo" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="#6B7280"
+                   Text="Azure-/palvelinasennuksessa aktivointi tehdään asennuksen jälkeen kyseisessä koneessa kohdekoneen kokeilu-/lisenssiikkunasta tai Tyokalut-lisenssityökalulla. Voit päivittää isompaan tasoon myöhemminkin (asetukset → Lisenssi) menettämättä tietojasi."/>
+        <TextBlock x:Name="lblLisError" Foreground="#DC2626" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,8,0,0"/>
+      </StackPanel>
       <StackPanel x:Name="PageSummary" Visibility="Collapsed">
         <TextBlock Text="Yhteenveto" FontSize="19" FontWeight="Bold" Margin="0,0,0,10"/>
         <TextBlock x:Name="lblSummary" TextWrapping="Wrap" LineHeight="21"/>
@@ -1088,11 +1137,12 @@ function Show-HkWizard {
     # Ohjainviittaukset
     $c = @{}
     foreach ($name in @('PageWelcome','PageMode','PageDir','PageAzure','PageServer','PageAdmin','PageOptions',
-                        'PageLuvat','PageSummary','PageInstall','PageDone',
+                        'PageLuvat','PageLisenssi','PageSummary','PageInstall','PageDone',
                         'rbModePaikallinen','rbModeAzure','rbModeServeri','lblModeError',
                         'txtAzName','txtAzRg','cmbAzRegion','cmbAzSku','txtAzSubId','lblAzError','lblAzInfo',
                         'txtSrvHost','txtSrvUser','pwSrvPass','txtSrvPath','txtSrvPort','chkSrvNotDomain','chkSrvShortcut','lblSrvError',
                         'lblLuvatList','chkLuvat','lblLuvatError',
+                        'txtLisKone','txtLisAvain','txtLisKoodi','chkLisenssi','lblLisInfo','lblLisError',
                         'txtDir','btnBrowse','txtPort','lblDirError','txtName','txtEmail','txtTitle',
                         'pwPassword','pwPassword2','lblAdminError','chkDesktop','chkStartMenu','chkAutoStart',
                         'chkPhone','chkOpenBrowser','chkTalous','lblSummary','pbProgress','lstSteps','lblInstStatus',
@@ -1112,7 +1162,7 @@ function Show-HkWizard {
 
     $script:PageIdx = 0
     $script:Mode = 'paikallinen'
-    $script:Pages = @('PageWelcome','PageMode','PageDir','PageAdmin','PageOptions','PageLuvat','PageSummary','PageInstall','PageDone')
+    $script:Pages = @('PageWelcome','PageMode','PageDir','PageAdmin','PageOptions','PageLuvat','PageLisenssi','PageSummary','PageInstall','PageDone')
 
     function Get-HkSelectedMode {
         if ($c.rbModeAzure.IsChecked) { return 'azure' }
@@ -1124,11 +1174,11 @@ function Show-HkWizard {
         param([string]$m)
         $script:Mode = $m
         if ($m -eq 'azure') {
-            $script:Pages = @('PageWelcome','PageMode','PageAzure','PageAdmin','PageLuvat','PageSummary','PageInstall','PageDone')
+            $script:Pages = @('PageWelcome','PageMode','PageAzure','PageAdmin','PageLuvat','PageLisenssi','PageSummary','PageInstall','PageDone')
         } elseif ($m -eq 'serveri') {
-            $script:Pages = @('PageWelcome','PageMode','PageServer','PageAdmin','PageLuvat','PageSummary','PageInstall','PageDone')
+            $script:Pages = @('PageWelcome','PageMode','PageServer','PageAdmin','PageLuvat','PageLisenssi','PageSummary','PageInstall','PageDone')
         } else {
-            $script:Pages = @('PageWelcome','PageMode','PageDir','PageAdmin','PageOptions','PageLuvat','PageSummary','PageInstall','PageDone')
+            $script:Pages = @('PageWelcome','PageMode','PageDir','PageAdmin','PageOptions','PageLuvat','PageLisenssi','PageSummary','PageInstall','PageDone')
         }
     }
 
@@ -1193,6 +1243,21 @@ function Show-HkWizard {
             $c.btnNext.Visibility = 'Visible'
         }
         if ($pname -eq 'PageLuvat') { $c.lblLuvatList.Text = Get-HkLuvatText -m $script:Mode; $c.lblLuvatError.Text = '' }
+        if ($pname -eq 'PageLisenssi') {
+            try { $c.txtLisKone.Text = Get-HkLisNakymaKone (Get-HkLisKoneKoodi) } catch { $c.txtLisKone.Text = '' }
+            if ($script:Mode -ne 'paikallinen') {
+                $c.chkLisenssi.IsEnabled = $false
+                $c.txtLisAvain.IsEnabled = $false
+                $c.txtLisKoodi.IsEnabled = $false
+                $c.lblLisInfo.Text = 'Azure-/palvelinasennuksessa aktivointi tehdään asennuksen JÄLKEEN kyseisessä koneessa (kohteessa oleva kokeilu-/lisenssiikkuna tai Tyokalut-lisenssityökalu). Ilman lisenssiä asennettu ohjelma toimii 90 päivää.'
+            } else {
+                $c.chkLisenssi.IsEnabled = $true
+                $c.txtLisAvain.IsEnabled = $true
+                $c.txtLisKoodi.IsEnabled = $true
+                $c.lblLisInfo.Text = 'Ilman lisenssiä ohjelma toimii 90 päivän kokeilujaksolla. Aktivointi onnistuu myöhemminkin (ohjelman asettukset → Lisenssi tai kokeiluikkunasta; Huoltokello.ps1 -Lisenssi). Voit päivittää isompaan tasoon myöhemminkin menettämättä tietojasi.'
+            }
+            $c.lblLisError.Text = ''
+        }
         if ($pname -eq 'PageSummary') { Update-Summary }
         $c.lblFooterError.Text = ''
         $win.UpdateLayout()
@@ -1216,6 +1281,8 @@ function Show-HkWizard {
             LanAccess         = [bool]$c.chkPhone.IsChecked
             OpenBrowser       = [bool]$c.chkOpenBrowser.IsChecked
             InstallTalous     = [bool]$c.chkTalous.IsChecked
+            LisAvain          = $(if ($c.chkLisenssi.IsChecked -and $script:Mode -eq 'paikallinen') { $c.txtLisAvain.Text.Trim() } else { '' })
+            LisKoodi          = $(if ($c.chkLisenssi.IsChecked -and $script:Mode -eq 'paikallinen') { $c.txtLisKoodi.Text.Trim() } else { '' })
             NoShortcuts       = $false
             Silent            = $false
             AzName            = $c.txtAzName.Text.Trim().ToLower()
@@ -1235,6 +1302,35 @@ function Show-HkWizard {
     }
 
     # --- Validoinnit ---
+    function Test-PageLisenssi {
+        $c.lblLisError.Text = ''
+        if (-not $c.chkLisenssi.IsChecked) {
+            return $true   # kokeilujakso jatkuu ilman lisenssia (90 pv)
+        }
+        if ($script:Mode -ne 'paikallinen') {
+            # ruksi on pois kaytosta muissa moodeissa; ei virhetta
+            return $true
+        }
+        $av = $c.txtLisAvain.Text.Trim()
+        $ko = $c.txtLisKoodi.Text.Trim()
+        if (-not $av -or -not $ko) {
+            $c.lblLisError.Text = 'Anna sekä lisenssiavain että aktivointikoodi, tai tyhjennä ruksi (jatketaan 90 pv kokeilulla).'
+            return $false
+        }
+        if (Get-Command Test-HkLisAvain -ErrorAction SilentlyContinue) {
+            $t = Test-HkLisAvain -Avain $av
+            if (-not $t.Ok) { $c.lblLisError.Text = $t.Virhe; return $false }
+            if (Get-Command Get-HkLisAktivointiKoodi -ErrorAction SilentlyContinue) {
+                $odotettu = Get-HkLisAktivointiKoodi -Konekoodi (Get-HkLisKoneKoodi) -Avain $t.Numero
+                if (($ko -replace '[^0-9]', '') -ne $odotettu) {
+                    $c.lblLisError.Text = ('Aktivointikoodi ei kelpaa tahan koneeseen (konekoodi {0}). Tarkista avain ja koodi kehittajalta.' -f (Get-HkLisNakymaKone (Get-HkLisKoneKoodi)))
+                    return $false
+                }
+            }
+        }
+        return $true
+    }
+
     function Test-Page2 {
         $c.lblDirError.Text = ''
         $dir = $c.txtDir.Text.Trim()
@@ -1403,6 +1499,7 @@ Valinnaiset:
   Puhelinkäyttö (WiFi):      $(if ($s.LanAccess) { 'kyllä - koko lähiverkko (pyytää ylläpito-oikeudet)' } else { 'ei' })
   Selain asennuksen jälkeen: $(if ($s.OpenBrowser) { 'kyllä' } else { 'ei' })
   Talousmoduuli:             $(if ($s.InstallTalous -and (Test-Path $TalousZip)) { 'asennetaan (http://127.0.0.1:' + $TalousPort + ')' } else { 'ei asenneta' })
+  Lisenssi:                  $(if ($s.LisAvain) { 'aktivoituna asennuksen yhteydessä (kokeilurajoitukset ohitetaan)' } else { 'kokeilujakso 90 pv (aktivointi myöhemmin mahdollinen)' })
 
 Ohjelma asennetaan TYHJÄNÄ: käyttöönotto tapahtuu vaihe vaiheelta
 opasta seuraten (tehtävätyypit, käyttäjät, asiakkaat, sopimukset...).
@@ -1537,6 +1634,7 @@ Tili:      $($result.Email) (Johto)$(if ($result.Updated) { "`n`nHUOM: aiempi as
             'PageAdmin'   { $ok = Test-Page3 }
             'PageOptions' { Update-Summary }
             'PageLuvat'   { $ok = Test-PageLuvat; if ($ok) { Update-Summary } }
+            'PageLisenssi' { $ok = Test-PageLisenssi; if ($ok) { Update-Summary } }
             'PageSummary' { Start-Install; return }
         }
         if ($ok) { Show-Page ([Math]::Min($script:PageIdx + 1, $script:Pages.Count - 1)) }
@@ -1716,6 +1814,30 @@ if ($Silent) {
         Silent        = $true
         HyvaksyLuvat  = $true
     }
+    # Lisenssin aktivointi hiljaisessa asennuksessa (valinnainen parametrit)
+    $silentLisAvain = ''
+    $silentLisKoodi = ''
+    if ($LisenssiAvain -or $LisenssiKoodi) {
+        if ($m -eq 'paikallinen') {
+            if ($LisenssiAvain -and $LisenssiKoodi) {
+                $t = Test-HkLisAvain -Avain $LisenssiAvain
+                if (-not $t.Ok) { Write-Host ('Virheellinen lisenssiavain: ' + $t.Virhe) -ForegroundColor Red; exit 2 }
+                $odotettu = Get-HkLisAktivointiKoodi -Konekoodi (Get-HkLisKoneKoodi) -Avain $t.Numero
+                if (($LisenssiKoodi -replace '[^0-9]', '') -ne $odotettu) {
+                    Write-Host 'Aktivointikoodi ei kelpaa tahan koneeseen - tarkista konekoodi:' -ForegroundColor Red
+                    Write-Host ('  konekoodi: ' + (Get-HkLisNakymaKone (Get-HkLisKoneKoodi)))
+                    exit 2
+                }
+                $silentLisAvain = [string]$LisenssiAvain
+                $silentLisKoodi = [string]$LisenssiKoodi
+            } else {
+                Write-Host 'Anna molemmat: -LisenssiAvain ja -LisenssiKoodi.' -ForegroundColor Red
+                exit 2
+            }
+        } else {
+            Write-Host '-LisenssiAvain/-LisenssiKoodi: aktivointi vain paikallisessa asennuksessa (muissa moodeissa kohteen koneessa).' -ForegroundColor Yellow
+        }
+    }
     if ($m -eq 'azure') {
         $s = $baseAdmin + @{
             Mode             = 'azure'
@@ -1743,7 +1865,7 @@ if ($Silent) {
         catch { Write-Host $_.Exception.Message -ForegroundColor Red; exit 2 }
         if (-not (Test-PortFree $Port)) { Write-Host "Portti $Port on varattu - valitse toinen (-Port)." -ForegroundColor Red; exit 2 }
         if ($AsennaTalous -and -not (Test-Path $TalousZip)) {
-            Write-Warning 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip puuttuu paketista - talousmoduulia ei asenneta.'
+            Write-Warning 'Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip puuttuu paketista - talousmoduulia ei asenneta.'
         }
         $s = $baseAdmin + @{
             Mode              = 'paikallinen'
@@ -1755,6 +1877,8 @@ if ($Silent) {
             AutoStart         = [bool]$AutoStart
             PhoneAccess       = [bool]($PhoneAccess -or $LanAccess)
             LanAccess         = [bool]($PhoneAccess -or $LanAccess)
+            LisAvain          = [string]$silentLisAvain
+            LisKoodi          = [string]$silentLisKoodi
         }
     }
 

@@ -1,5 +1,41 @@
 HUOLTOKELLO - VERSIOLOKI
 ========================
+v2.9.0-kokeilu (27.11.2026)
+---------------------------
+- UUSI: Lisenssijarjestelma (Tyokalut\_lisenssi.ps1). Ilman lisenssia
+  ohjelma toimii 90 paivan kokeilujaksolla; voimassa oleva lisenssi
+  ohittaa kokeilujakson (Test-HkKokeiluGate tarkistaa lisenssin ENSIN).
+  Tuetut tasot: 01 Yritys Pieni (1 serveri / 50 tyontekijaa / johto +5),
+  02 Yritys (1/300/+10), 03 Yritys Suuri (1/900/+20), 04 Yritys
+  Enterprise (5 serveria / 2000 tyontekijaa / johto +100).
+- Lisenssiavain 25 numeroa (XXXXX-XXXXX-XXXXX-XXXXX-XXXXX) + kehittajan
+  konekohtainen aktivointikoodi 12 numeroa (XXXXXX-XXXXXX). Aktivointi
+  sidotaan konekoodiin (MachineGuid + C-aseman sarjanumero + koneen
+  nimi, HMAC): sama avain ei kelpaa toiselle koneelle ilman uutta koodia
+  (kehittaja myontaa koodit ja vapaauttaa sidonnat Lisenssityokalulla).
+  Paivitys isompaan tasoon onnistuu milloin tahansa; tiedot sailyvat.
+- Paattyneen kokeilujakson ikkunassa (ruudun keskella) on nyt
+  "Syota lisenssiavain" ja "Syota aktivointikoodi" -kentat,
+  AKTIVOI-painike ja konekoodi (kopioitavalla painikkeella).
+  Onnistuneen aktivoinnin jalkeen kaynnistys jatkuu heti.
+- Kaynnistaja tyokalu: Tyokalut\Kaynnista.ps1 -Lisenssi avaa
+  lisenssin hallintadialogin (tila, konekoodi, aktivointi, paivitys)
+  milloin tahansa. Velhon luoma Huoltokello.ps1 lataa lisenssi-
+  moottorin ennen kokeiluporttia.
+- ASENNUUSVELHO 2.9.0: uusi valinnainen Lisenssi-sivu (paikallinen
+  asennus): konekoodi naytetaan, avain + aktivointikoodi voidaan
+  syottaa jo asennuksen aikana (hiljaisessa asennuksessa
+  -LisenssiAvain/-LisenssiKoodi). Ilman lisenssia velho jatkaa
+  kokeilujaksoa (90 pv). Azure-/palvelinasennuksessa aktivointi
+  tehdaan kohdekoneessa asennuksen jalkeen.
+- TALOUSMODUULI PAIVITETTY: paketin talousosa on nyt
+  Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip (lisenssituki, samat
+  avaimet + koneet; yksi avain aktivoi molemmat ohjelmat samassa
+  koneessa - yhteinen lisenssitila %APPDATA%\Hk-Lisenssi\lisenssi.json).
+- Ajojen ristitesti: Lisenssityokalu / talous (Python) / Huoltokello
+  (PowerShell) tuottavat samat kultavektorit, konekoodit ja tilat
+  (lisenssi-testi.ps1).
+
 v2.8.2-kokeilu (27.11.2026)
 ---------------------------
 - KOKEILUVERSIO: GitHub-julkaisusta tehty rajoitettu kokeiluversio, joka

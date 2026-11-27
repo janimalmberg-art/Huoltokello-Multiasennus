@@ -204,6 +204,7 @@ function Get-HkKokeiluPaattynytRivit {
     $rivit += ('Sahkoposti: {0}' -f $script:HkKokeiluSahkoposti)
     $rivit += ''
     $rivit += 'Ohjelman tayden version ja lisenssit voi pyytaa kehittajalta sahkopostitse.'
+    $rivit += 'Paattymisikkunassa voi myos syottaa lisensiavaimen ja aktivointikoodin (Aktivointi-painike).'
     return $rivit
 }
 
@@ -226,12 +227,35 @@ function Get-HkKokeiluTervetuloaRivit {
 function Test-HkKokeiluGate {
     param([string]$InstallDir = '')
 
+    # LISSENSI ensin: voimassa oleva lisenssi ohittaa 90 paivan kokeilujakson.
+    if (Get-Command Test-HkLisVoimassa -ErrorAction SilentlyContinue) {
+        $lisTila = Get-HkLisTila
+        if ($lisTila.Voimassa) {
+            Write-Host ('Huoltokello lisenssi: {0} (taso {1}).' -f $lisTila.Nimi, $lisTila.Taso)
+            return $true
+        }
+    }
+
     $tila = Get-HkKokeiluTila -InstallDir $InstallDir
 
     if ($tila.Paattynyt) {
         $rivit = Get-HkKokeiluPaattynytRivit -Tila $tila
         Write-HkKokeiluKonsoli -Rivit $rivit
-        Show-HkKokeiluIkkuna -Otsikko 'Huoltokello - kokeilujakso paattynyt' -Rivit $rivit
+        # Paattyneen kokeilujakson ikkunassa voi syottaa lisensiavaimen +
+        # aktivointikoodin (kehittajalta). Onnistuneen aktivoinnin jalkeen
+        # kaynnistys jatkuu heti samaan sessioon.
+        if (Get-Command Show-HkLisAktivointiIkkuna -ErrorAction SilentlyContinue) {
+            if (Show-HkLisAktivointiIkkuna -Rivit $rivit) {
+                $uudTila = Get-HkLisTila
+                if ($uudTila.Voimassa) {
+                    Write-Host ('Huoltokello lisenssi aktivoitu: {0} (taso {1}).' -f $uudTila.Nimi, $uudTila.Taso)
+                    return $true
+                }
+            }
+        }
+        else {
+            Show-HkKokeiluIkkuna -Otsikko 'Huoltokello - kokeilujakso paattynyt' -Rivit $rivit
+        }
         return $false
     }
 

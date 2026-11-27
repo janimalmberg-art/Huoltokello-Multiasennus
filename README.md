@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| Ohjelmaversio | **v2.8.2-kokeilu** (90 päivän kokeiluversio) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
+| Ohjelmaversio | **v2.9.0-kokeilu** (90 päivän kokeiluversio + lisenssijärjestelmä) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
 | Alusta | Windows 10/11 (64-bittinen), PowerShell 5.1 (pakko ei ole lisäasennus) |
 | Teknologia | itsenäinen (self-contained) .NET-sovellus — **.NET-latauksia EI tarvita** |
 | Asennuksen alkutila | täysin tyhjä (ei demodataa) — ensimmäinen Johto-tili luodaan asennuksessa |
@@ -25,7 +25,7 @@ Huom: Azure-käyttö maksaa (F1/B1-taso on hyvin edullinen) ja vaatii Azure-tili
 ## Kokeiluversio (90 päivää)
 
 Tämä julkaisu on **kokeiluversio**: Huoltokello (ja paketin talousmoduuli
-**Huoltokello-Talous 1.3.1 Kokeilu**) toimii **90 päivää ensimmäisestä
+**Huoltokello-Talous 1.4.0 Kokeilu**) toimii **90 päivää ensimmäisestä
 käynnistyksestä**. Kokeilujakson alkupäivä tallennetaan sovelluksen
 kansioon, eikä kokeiluaikaa voi nollata poistamalla tai muuttamalla
 merkintää (vioittunut merkintä estää käynnistyksen).
@@ -39,6 +39,28 @@ ruudun keskellä ikkuna:
 
 Ohjelman täyden version ja lisenssit voi pyytää kehittajältä
 sähköpostitse.
+
+## Lisenssi (uusi 2.9.0)
+
+Ilman lisenssiä ohjelma toimii 90 päivän kokeilujaksolla. Kun kehittäjä myöntää
+**lisenssiavaimen** (25 numeroa, `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX`) ja konekohtaisen
+**aktivointikoodin** (12 numeroa, `XXXXXX-XXXXXX`), lisenssin voi aktivoida:
+
+- päättyneen kokeilujakson ikkunassa: kentät **Syötä lisenssiavain** / **Syötä aktivointikoodi**
+  ja painike **Aktivointi** (konekoodi kopioituu painikkeella) — onnistuneen aktivoinnin
+  jälkeen Huoltokello käynnistyy heti, tai
+- **asennusvelhon Lisenssi-sivulla** (paikallinen asennus), tai
+- milloin tahansa myöhemmin komennolla `Tyokalut\Kaynnista.ps1 -Lisenssi`
+  (tila, konekoodi, aktivointi ja päivitys isompaan tasoon; hiljaisessa asennuksessa
+  `-LisenssiAvain` / `-LisenssiKoodi`).
+
+Tasot: **Yritys Pieni** (1 serveri / 50 työntekijää / johto +5), **Yritys** (1 / 300 / +10),
+**Yritys Suuri** (1 / 900 / +20), **Yritys Enterprise** (5 serveria / 2000 työntekijää / johto +100).
+Aktivointi on sidottu koneeseen (**konekoodi**, muoto `XXXX-XXXX-XXXX`): sama avain ei kelpaa
+toiselle koneelle ilman uutta aktivointikoodia; uudelleenasennuksessa kehittäjä vapaauttaa
+vanhan sidonnan. **Sama avain aktivoi talousmoduulin** (Huoltokello-Talous) samassa koneessa —
+lisenssitila on ohjelmien yhteinen. Azure-/palvelinasennuksessa aktivointi tehdään asennuksen
+jälkeen kyseisessä koneessa.
 
 ## Mikä Huoltokello on
 

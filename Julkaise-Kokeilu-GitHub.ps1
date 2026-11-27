@@ -24,7 +24,8 @@
 [CmdletBinding()]
 param(
     [switch]$EiJulkaisua,
-    [string]$TalousKoeZip = 'C:\Users\PC\Desktop\Huoltokello-Talous\kokeilu-tmp\Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip'
+    # v2.9.0: pakettiin tulee kokeilutalousmoduuli 1.4.0 (lisenssituki)
+    [string]$TalousKoeZip = 'C:\Users\PC\Desktop\Huoltokello-Talous\kokeilu-tmp\Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,10 +34,10 @@ Set-Location $PSScriptRoot
 
 $omistaja = 'janimalmberg-art'
 $arkisto = 'Huoltokello-Multiasennus'
-$versio = 'v2.8.2-kokeilu'
-$relNimi = 'Huoltokello-Multiasennus v2.8.2 KOKEILUVERSIO (toimii 90 paivaa)'
-$zipinNimi = 'Huoltokello-Multiasennus-2.8.2-Kokeilu-90pv.zip'
-$zipinPolkuKoe = 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip'
+$versio = 'v2.9.0-kokeilu'
+$relNimi = 'Huoltokello-Multiasennus v2.9.0 KOKEILUVERSIO (toimii 90 paivaa)'
+$zipinNimi = 'Huoltokello-Multiasennus-2.9.0-Kokeilu-90pv.zip'
+$zipinPolkuKoe = 'Huoltokello-Talous-1.4.0-Kokeilu-90pv.zip'
 $zipinPolkuTay = 'Huoltokello-Talous-1.1.0.zip'
 $api = "https://api.github.com/repos/$omistaja/$arkisto"
 
@@ -159,7 +160,7 @@ if ($LASTEXITCODE -ne 0) { throw 'git archive epaonnistui.' }
 Expand-Archive -LiteralPath $vienti -DestinationPath $root
 Remove-Item -LiteralPath $vienti -Force
 
-# kokeiluversio (1.3.1) tilalle: tuore -TalousKoeZip aina yli, jos tarjolla;
+# v2.9.0: kokeiluversio (1.4.0) tilalle: tuore -TalousKoeZip aina yli, jos tarjolla;
 # muuten kaytetaan repon versiota (HEAD) sellaisenaan
 $tayTalous = Join-Path $root $zipinPolkuTay
 if (Test-Path -LiteralPath $tayTalous) { Remove-Item -LiteralPath $tayTalous -Force }
@@ -216,14 +217,19 @@ if ($EiJulkaisua) {
 # ------------------------------------------------- 3) julkaisu
 
 $kuvaus = @"
-**Huoltokello-Multiasennus KOKEILUVERSIO v2.8.2 - toimii 90 päivää ensimmäisestä käynnistyksestä.**
+**Huoltokello-Multiasennus KOKEILUVERSIO v2.9.0 - toimii 90 päivää ensimmäisestä käynnistyksestä.**
 
 - Asennus: pura zip ja käynnistä **Asenna.cmd** (asennusvelho: paikallinen kone, Microsoft Azure tai yrityksen Windows-palvelin).
 - Kokeilujakso: **90 päivää** ensimmäisestä käynnistyksestä. Jaksontäytyessä ohjelma ei käynnisty ja näyttää ruudun keskellä
-  ilmoituksen **"Kokeilujaksosi on päättynyt."** - kokeilussa on mukana kaikki ominaisuudet, myös talousmoduuli
-  (Huoltokello-Talous 1.3.1 kokeiluversio).
+  ilmoituksen **"Kokeilujaksosi on päättynyt"** - kokeilussa on mukana kaikki ominaisuudet, myös talousmoduuli
+  (Huoltokello-Talous 1.4.0 kokeiluversio).
+- **Uutta 2.9.0: Lisenssijärjestelmä.** Ilman lisenssiä toimii 90 pv kokeilujakso. Lisenssiavaimen (25 numeroa)
+  ja konekohtaisen aktivointikoodin voi syöttää päättymisikkunassa (**Aktivointi**-painike), asennusvelhon
+  **Lisenssi-sivulla** (paikallinen asennus) tai myöhemmin **Huoltokello.ps1 -Lisenssi** -dialogissa.
+  Tuetut tasot: Yritys Pieni (1 serveri / 50 tk / johto +5), Yritys (1 / 300 / +10), Yritys Suuri (1 / 900 / +20),
+  Yritys Enterprise (5 serveria / 2000 tk / +100). Sama avain kelpaa Huoltokello-Talous-ohjelmalle samassa koneessa.
 - **Kehittäjä: Jani Malmberg** (ohjelman kehittäjä) - **jani.malmberg@gmail.com**
-- Ohjelman ** täyden version ja lisenssit voi pyytää kehittäjältä sähköpostitse**.
+- Lisenssit, konekohtaiset aktivoinnit ja päivitykset isompiin tasoihin: kehittäjältä.
 
 Täysi versio ei ole saatavilla tässä julkaisussa - se saadaan kehittäjältä. Versiohistoria: VERSIO.txt.
 "@
