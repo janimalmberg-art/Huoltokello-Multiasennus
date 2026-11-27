@@ -68,15 +68,19 @@ $OhjeIconFile = Join-Path $PackageDir 'assets\huoltokello-ohjeet.ico'
 $AzureOsat    = Join-Path $PackageDir 'Osa-Azure.ps1'
 $PalvelinOsat = Join-Path $PackageDir 'Osa-Palvelin.ps1'
 # v2.8.0: talousmoduuli (Huoltokello-Talous) - valinnainen osa paikallista asennusta
-$TalousZip   = Join-Path $PackageDir 'Huoltokello-Talous-1.1.0.zip'
+# v2.8.2: pakettiin tulee kokeiluversio (Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip)
+$TalousZip   = Join-Path $PackageDir 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip'
 $TalousRoot  = Join-Path $env:LOCALAPPDATA 'Huoltokello-Talous'
 $TalousApp   = Join-Path $TalousRoot 'app'
 $TalousData  = Join-Path $TalousRoot 'Data'
 $TalousPort  = 8090
 $DefaultPort = 8088
-# v2.8.1: velhon versio ( näkyy Sovellukset-listassa ja VERSIO.txt:ssa;
+# v2.8.2: velhon versio ( näkyy Sovellukset-listassa ja VERSIO.txt:ssa;
 # päivitä tässä, kun sovellus tai velho muuttuu)
-$WizardVersion = '2.8.1'
+$WizardVersion = '2.8.2'
+# v2.8.2 kokeiluversio: Huoltokello toimii 90 paivan kokeilujaksolla
+# (Tyokalut\_kokeilu.ps1 -tarkistus kaynnistyksessa), talousmoduuli on
+# kokeiluversio Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip.
 # v2.8.1: asennettavan sovelluksen versio (app.zip, 2.8.0):
 #   * kuvan mukainen ulkoasu (tumma sivupalkki + yläpalkki),
 #   * etusivun suoritustason mittari (myöhässä/käsittelyssä/valmiit/uudet),
@@ -399,6 +403,13 @@ param([switch]`$NoBrowser)
 `$Exe = Join-Path `$InstallDir 'KiinteistoHuolto.Web.exe'
 `$Url = "http://127.0.0.1:`$Port"
 
+# KOKEILUVERSIO: tarkista 90 paivan kokeilujakso ennen kaynnistysta
+`$KokeiluSkripti = Join-Path `$InstallDir 'Tyokalut\_kokeilu.ps1'
+if (Test-Path `$KokeiluSkripti) {
+    . `$KokeiluSkripti
+    if (-not (Test-HkKokeiluGate -InstallDir `$InstallDir)) { exit 2 }
+}
+
 function Wait-Hk([int]`$sec) {
     for (`$i = 0; `$i -lt (`$sec * 1000 / 700); `$i++) {
         try { `$r = Invoke-WebRequest "`$Url/health" -UseBasicParsing -TimeoutSec 2; if (`$r.StatusCode -eq 200) { return `$true } } catch { }
@@ -454,6 +465,10 @@ Osoite:       $baseUrl  (paikallinen)
 Portti:       $port
 Yllapitaja:   $($s.AdminName) <$($s.AdminEmail)>  (Johto-rooli)
 Puhelinkaytto: $(if ($s.LanAccess) { 'kylla (lahiverkko + palomuurisaanto)' } else { 'ei (vain tietokoneelta)' })
+
+KOKEILUVERSIO: ohjelma toimii 90 paivaa ensimmaisesta kaynnistyksesta
+Kehittaja:     Jani Malmberg (ohjelman kehittaja), jani.malmberg@gmail.com
+               Tayden version ja lisenssit voi pyytaa sahkopostitse.
 
 KAYTTOONOTTO (yksityiskohtainen opas: Ohjeet\Kayttoonotto-Opas.html):
  1. Avaa $baseUrl ja kirjaudu yllapitajatililla
@@ -607,7 +622,7 @@ aja Tyokalut\Luo-YllapitajaTili.ps1 ja luo UUSI johtotili toisella sahkopostilla
     & $OnStep 'varmistus' 'ok' 'Kirjautumissivu vastaa'
     & $OnStep 'valmis' 'ok' $baseUrl
 
-    # --- 10) Talousmoduuli (Huoltokello-Talous 1.1, valinnainen) ---
+    # --- 10) Talousmoduuli (Huoltokello-Talous 1.3.1 kokeilu, valinnainen) ---
     $talUrl = "http://127.0.0.1:$TalousPort"
     $talMsg = 'Ohitettu (ei pyydetty)'
     $talOk  = $false
@@ -622,7 +637,7 @@ aja Tyokalut\Luo-YllapitajaTili.ps1 ja luo UUSI johtotili toisella sahkopostilla
                 $talMsg = 'epäonnistui - asenna jälkikäteen Huoltokello-Talous-paketin Asenna-Talous.cmd'
             }
         } else {
-            & $OnStep 'talous' 'info' 'Huoltokello-Talous-1.1.0.zip puuttuu paketista - talousmoduulia ei asenneta.'
+            & $OnStep 'talous' 'info' 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip puuttuu paketista - talousmoduulia ei asenneta.'
             $talMsg = 'ei asennettu (talousosa puuttuu paketista)'
         }
     } else {
@@ -687,7 +702,7 @@ function Invoke-HkTalousInstall {
     # --- 1) Purku: zip -> valiaikainen kansio -> %LOCALAPPDATA%\Huoltokello-Talous\app
     $stage = Join-Path ([IO.Path]::GetTempPath()) ('hktalous-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
     try {
-        & $OnStep 'talous' 'info' 'Puretaan Huoltokello-Talous-1.1.0.zip (turvallisella purkijalla)...'
+        & $OnStep 'talous' 'info' 'Puretaan Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip (turvallisella purkijalla)...'
         $null = Expand-HkZipSafe -ZipPath $TalousZip -Destination $stage
         $stagePayload = Join-Path $stage 'Huoltokello-Talous'
         if (-not (Test-Path (Join-Path $stagePayload 'huoltokello_talous'))) { throw 'talousosasta puuttuu kansio huoltokello_talous - paketti on rikki.' }
@@ -786,7 +801,7 @@ print("hk.db_path =>", sys.argv[2])
     $summaryTxt = @"
 Huoltokello-Talous - velhon asentama talousosio
 
-Moduuli:        $TalousApp (Huoltokello-Talous-1.1.0.zip; aiempi data säilytetty)
+Moduuli:        $TalousApp (Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip, kokeiluversio; aiempi data säilytetty)
 Data:           $TalousData
 Palvelu:        http://127.0.0.1:$TalousPort  (Kaynnista-Talous.cmd käynnistää + avaa selaimen)
 Huoltokello:    $HkDir
@@ -1728,7 +1743,7 @@ if ($Silent) {
         catch { Write-Host $_.Exception.Message -ForegroundColor Red; exit 2 }
         if (-not (Test-PortFree $Port)) { Write-Host "Portti $Port on varattu - valitse toinen (-Port)." -ForegroundColor Red; exit 2 }
         if ($AsennaTalous -and -not (Test-Path $TalousZip)) {
-            Write-Warning 'Huoltokello-Talous-1.1.0.zip puuttuu paketista - talousmoduulia ei asenneta.'
+            Write-Warning 'Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip puuttuu paketista - talousmoduulia ei asenneta.'
         }
         $s = $baseAdmin + @{
             Mode              = 'paikallinen'

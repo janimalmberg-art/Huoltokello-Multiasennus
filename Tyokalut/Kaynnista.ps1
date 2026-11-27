@@ -13,6 +13,11 @@ if (Test-HkHealth -Port $port) {
 }
 
 Write-Host "Kaynnistetaan Huoltokello..."
+
+# KOKEILUVERSIO: tarkista 90 paivan kokeilujakso ennen kaynnistysta
+. "$PSScriptRoot\_kokeilu.ps1"
+if (-not (Test-HkKokeiluGate -InstallDir (Get-HkInstallDir))) { exit 2 }
+
 Start-HkApp -NoBrowser
 if (Wait-HkHealth -Port $port -Seconds 90) {
     Write-Host "Huoltokello kaynnissa: $base"

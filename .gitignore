@@ -11,6 +11,7 @@ desktop.ini
 
 # Työkansio (paketointivälineet ja välikopiot – ei osa julkaisua)
 _tyo/
+kokeilu-tmp-multa/
 
 # Tilapäiset tuplakopiot ja ajotarkistukset (juuri)
 _app-fixed.zip

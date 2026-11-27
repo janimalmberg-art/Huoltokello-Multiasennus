@@ -18,7 +18,7 @@ yhtaan muutosta tehdaan.
 VALINNAINEN TALOUSOSIO (Huoltokello-Talous)
 ----------------------------------------------------------------
 
-Paketissa on myos Huoltokello-Talous-1.1.0.zip - rahoituksen,
+Paketissa on myos Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip - rahoituksen,
 laskutuksen ja palkkojen hallintamoduuli. Paikallisessa
 asennuksessa velho valitsee moduulin oletuksena ("Asenna samalla
 Huoltokello-Talous -rahoitusmoduuli"). Valittuna velho purkaa
@@ -28,6 +28,27 @@ kaynnistyskuvakkeet. Talous kayntyy omalla kuvakkeellaan ja palvelee
 osoitteessa http://127.0.0.1:8090. Jos talousosion asennus epaonnistuu,
 Huoltokello asennetaan silti onnistuneesti ja Talous voi asentaa
 myohemmin talousosion Asenna-Talous.cmd-skriptilla.
+
+
+KOKEILUVERSIO (90 paivaa)
+----------------------------------------------------------------
+
+Tama talousmoduuli on KOKEILUVERSIO: Huoltokello-Talous toimii
+90 paivaa ensimmaisesta kaynnistyksesta. Samoin Huoltokello
+(kaynnistin ja Tyokalut\Kaynnista.ps1) toimii 90 paivan
+kokeilujaksolla. Kokeilujakson alku tallennetaan sovelluksen
+kansioon, eika kokeiluaikaa voi nollata poistamalla tai muuttamalla
+merkintaa.
+
+Kokeilujakson paatyttya ohjelma ei kaynnisty, ja kayttajalle
+naytetaan ruudun keskella ikkuna:
+
+    "Kokeilujaksosi on paattynyt."
+    Kehittaja:    Jani Malmberg (ohjelman kehittaja)
+    Sahkoposti:   jani.malmberg@gmail.com
+
+Ohjelman tayden version ja lisenssit voi pyytaa kehittajalta
+sahkopostitse.
 
 
 ASENNUSTAVAT

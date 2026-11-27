@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| Ohjelmaversio | **v2.7.4** (16.11.2026) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
+| Ohjelmaversio | **v2.8.2-kokeilu** (90 päivän kokeiluversio) — historia: [docs/Versioloki.md](docs/Versioloki.md) |
 | Alusta | Windows 10/11 (64-bittinen), PowerShell 5.1 (pakko ei ole lisäasennus) |
 | Teknologia | itsenäinen (self-contained) .NET-sovellus — **.NET-latauksia EI tarvita** |
 | Asennuksen alkutila | täysin tyhjä (ei demodataa) — ensimmäinen Johto-tili luodaan asennuksessa |
@@ -21,6 +21,24 @@
 | **3) Windows-palvelin** | yrityksen oma Windows-palvelin (WinRM-ajo, oletusportti 8080) | sisäverkon monikäyttö omalla palvelimella |
 
 Huom: Azure-käyttö maksaa (F1/B1-taso on hyvin edullinen) ja vaatii Azure-tilin, jolla on tilauksen kirjoitusoikeus; palvelinasennus vaatii WinRM-käytön ja ylläpitäjätunnukset. Kaikki yksityiskohdat ja hiljaiset komennot: [docs/Multiasennusopas.md](docs/Multiasennusopas.md).
+
+## Kokeiluversio (90 päivää)
+
+Tämä julkaisu on **kokeiluversio**: Huoltokello (ja paketin talousmoduuli
+**Huoltokello-Talous 1.3.1 Kokeilu**) toimii **90 päivää ensimmäisestä
+käynnistyksestä**. Kokeilujakson alkupäivä tallennetaan sovelluksen
+kansioon, eikä kokeiluaikaa voi nollata poistamalla tai muuttamalla
+merkintää (vioittunut merkintä estää käynnistyksen).
+
+Kokeilujakson päättyessä ohjelma ei käynnisty, ja käyttäjälle näytetään
+ruudun keskellä ikkuna:
+
+> **"Kokeilujaksosi on päättynyt."**
+> Kehittäjä: Jani Malmberg (ohjelman kehittäjä)
+> Sähköposti: jani.malmberg@gmail.com
+
+Ohjelman täyden version ja lisenssit voi pyytää kehittajältä
+sähköpostitse.
 
 ## Mikä Huoltokello on
 

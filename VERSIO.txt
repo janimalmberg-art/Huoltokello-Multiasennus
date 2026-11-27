@@ -1,5 +1,34 @@
 HUOLTOKELLO - VERSIOLOKI
 ========================
+v2.8.2-kokeilu (27.11.2026)
+---------------------------
+- KOKEILUVERSIO: GitHub-julkaisusta tehty rajoitettu kokeiluversio, joka
+  toimii 90 paivaa ensimmaisesta kaynnistyksesta:
+  * Uusi Tyokalut\_kokeilu.ps1: kokeilujakson valvonta. Alkupaiva
+    tallennetaan asennuskansioon AppData\Kokeilujakso.txt
+    (SHA-256-tarkisteella varmistettuna); vioittunut tai muokattu merkinta
+    estaa kaynnistyksen eika ala kokeiluaikaa alusta. Kello ajautumista
+    taaksepain ei rangaista (kokeila jatkuu taydella ajalla).
+  * Kaynnistin (velhon luoma Huoltokello.ps1) ja Tyokalut\Kaynnista.ps1
+    tarkistavat kokeilujakson ennen kaynnistysta. Paattyneen jakson
+    jalkeen kaynnistys estetaan (poistumiskoodi 2) ja kayttajalle
+    naytetaan ruudun keskella ikkuna: "Kokeilujaksosi on paattynyt.",
+    kehittajan tiedot: Jani Malmberg (ohjelman kehittaja),
+    jani.malmberg@gmail.com. Tayden version ja lisenssit voi pyytaa
+    kehittajalta sahkopostitse.
+  * Ensimmaisella kaynnistyksella naytetaan tervetuloa-ikkuna
+    (kokeilujakso alkoi -paivamaara, kehittajan tiedot), muilla ajoilla
+    kaynnistys tulostaa jaljella olevat paivat.
+- TALOUSMODUULI KOKEILUVERSIOON: paketin talousosa vaihdettu
+  Huoltokello-Talous-1.1.0.zip -> Huoltokello-Talous-1.3.1-Kokeilu-90pv.zip
+  (90 paivan kokeiluversio, sama kokeiluikkuna ja kehittajatiedot).
+  Velho asentaa kokeiluversion samalla tavalla kuin aiemmin (data
+  sailytetaan paivityksissa).
+- Velhon versionumero 2.8.1 -> 2.8.2.
+- Uusi Julkaise-Kokeilu-GitHub.ps1: julkaisee kokeiluversion
+  (poistaa vanhat julkaisut ja tagit, rakentaa asennuspaketin
+  Huoltokello-Multiasennus-2.8.2-Kokeilu-90pv.zip ja julkaisee sen
+  v2.8.2-kokeilu-julkaisuna).
 v2.8.1 (24.11.2026)
 -------------------
 - SOVELLUS app.zip -> 2.8.0 (velhon versionumero 2.8.1, Sovellukset-lista seuraa
