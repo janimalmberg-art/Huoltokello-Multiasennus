@@ -120,8 +120,8 @@ if (-not $EiJulkaisua) {
             # tagi poistetaan erikseen, etta se lakkaa nakyemasta repositoriossa
             $null = Invoke-GhApi "$api/git/refs/tags/$tag" -Metodi Delete -Otsakkeet $hdr
             if ($script:ApiStatus -eq 404) {
-                # tagia ei ollut (esim. release ilman tagia) - ei haittaa
-            } elseif ($script:ApiStatus -ge 200 -and $script:ApiStatus -lt 300) {
+                # tagia ei ollut (esim. release vei tagin mukanaan) - ei haittaa
+            } elseif ($null -eq $script:ApiStatus -or ($script:ApiStatus -ge 200 -and $script:ApiStatus -lt 300)) {
                 Write-Host ("  poistettu tagi: {0}" -f $tag)
             } else {
                 Write-Host ("  VAROITUS: tagin {0} poisto palautti status {1}" -f $tag, $script:ApiStatus)
