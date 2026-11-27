@@ -16,6 +16,7 @@ kokeilu-tmp-multa/
 # Tilapäiset tuplakopiot ja ajotarkistukset (juuri)
 _app-fixed.zip
 _tarkista-azure-tila.ps1
+/Huoltokello-Talous-1.1.0.zip
 
 # Kehitysympäristöt ja varmuuskopiot
 __pycache__/
